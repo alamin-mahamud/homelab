@@ -1,4 +1,4 @@
-# TON618 - Proxy's Homelab
+# Proxy's Homelab`
 
 **[Features](#features) • [Get Started](#get-started) • [Documentation](https://homelab.rootproxy.com)**
 
@@ -48,6 +48,11 @@ More information can be found in [the roadmap](#roadmap) below.
         <td>Automate bare metal provisioning and configuration</td>
     </tr>
     <tr>
+        <td><img width="32" src="https://avatars.githubusercontent.com/u/13629408"></td>
+        <td><a href="https://kubernetes.io">Kubernetes</a></td>
+        <td>Container-orchestration system, the backbone of this project</td>
+    </tr>
+    <tr>
         <td><img width="32" src="https://avatars.githubusercontent.com/u/30269780"></td>
         <td><a href="https://argoproj.github.io/cd">ArgoCD</a></td>
         <td>GitOps tool built to deploy applications to Kubernetes</td>
@@ -87,6 +92,7 @@ More information can be found in [the roadmap](#roadmap) below.
         <td><a href="https://gitea.com">Gitea</a></td>
         <td>Self-hosted Git service</td>
     </tr>
+-->
     <tr>
         <td><img width="32" src="https://grafana.com/static/img/menu/grafana2.svg"></td>
         <td><a href="https://grafana.com">Grafana</a></td>
@@ -97,6 +103,7 @@ More information can be found in [the roadmap](#roadmap) below.
         <td><a href="https://helm.sh">Helm</a></td>
         <td>The package manager for Kubernetes</td>
     </tr>
+<!--
     <tr>
         <td><img width="32" src="https://avatars.githubusercontent.com/u/49319725"></td>
         <td><a href="https://k3s.io">K3s</a></td>
@@ -107,11 +114,7 @@ More information can be found in [the roadmap](#roadmap) below.
         <td><a href="https://kanidm.com">Kanidm</a></td>
         <td>Modern and simple identity management platform</td>
     </tr>
-    <tr>
-        <td><img width="32" src="https://avatars.githubusercontent.com/u/13629408"></td>
-        <td><a href="https://kubernetes.io">Kubernetes</a></td>
-        <td>Container-orchestration system, the backbone of this project</td>
-    </tr>
+
     <tr>
         <td><img width="32" src="https://github.com/grafana/loki/blob/main/docs/sources/logo.png?raw=true"></td>
         <td><a href="https://grafana.com/oss/loki">Loki</a></td>
@@ -167,6 +170,7 @@ More information can be found in [the roadmap](#roadmap) below.
         <td><a href="https://zotregistry.dev">Zot Registry</a></td>
         <td>Private container registry</td>
     </tr> -->
+
 </table>
 
 ## Get Started
