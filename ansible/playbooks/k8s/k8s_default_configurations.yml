@@ -1,0 +1,45 @@
+---
+- name: Setup K8S default configuration
+  hosts: all
+  become: yes
+  tasks:
+  - name: Disable Swap
+    command: swapoff -a
+
+  - name: Remove swap entry from /etc/fstab
+    replace:
+      path: /etc/fstab
+      regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+      replace: '# \1'
+
+  - name: Create an empty file for the containerd module
+    copy:
+      content: ""
+      dest: /etc/modules-load.d/containerd.conf
+      force: no
+
+  - name: configure modules for containerd
+    blockinfile:
+      path: /etc/modules-load.d/containerd.conf
+      block: |
+        overlay
+        br_netfilter
+
+  - name: create an empty file for k8s sysctl params
+    copy:
+      content: ""
+      dest: /etc/sysctl.d/99-k8s-cri.conf
+      force: no
+
+  - name: configure sysctl params for k8s
+    lineinfile:
+      path: /etc/sysctl.d/99-k8s-cri.conf
+      line: "{{ item }}"
+    with_items:
+      - "net.bridge.bridge-nf-call-iptables  = 1"
+      - "net.ipv4.ip_forward                 = 1"
+      - "net.bridge.bridge-nf-call-ip6tables = 1"
+
+  - name: Apply sysctl settings
+    command: sysctl --system
+
