@@ -30,9 +30,48 @@ More information can be found in [the roadmap](#roadmap) below.
 
 ## Hardware
 
-## Features
+![Home Server](./assets/HomeServer.jpg)
+![Raspberry Pi 5](https://assets.raspberrypi.com/static/8f6eca535dbb23a21eb41a748050e3a0/f7ad0/16gb.webp)
+![Cudy Switch](https://www.cudy.com/cdn/shop/files/A__GS108_1464x600-2.jpg)
+
+- MultiTasking Home Server (Custom Made):
+  - CPU: `32 x AMD Ryzen 9 7950X 16-Core Processor (1 Socket)`
+  - RAM: `128 GiB DDR5, 6000MHz`
+  - SSD: `PCIe Gen5 2TB`
+  - GPU: `ZOTAC GAMING GeForce RTX 4080 SUPER`
+- Raspberry Pi 5:
+  - CPU: `4 x Cortex-A76 (1 Socket)`
+  - RAM: `8 GiB DDR5`
+  - SSD: `64 GiB`
+- Cudy `GS108 8-Port Gigabit` Desktop Switch
+  - Ports: `8`
+  - Speed: `1000Mbps`
+
+### Features
+
+- [x] Automated backup and restore
+- [ ] Automated Kubernetes installation and management
+- [ ] Installing and managing applications using GitOps
+- [ ] CI/CD platform
+- [ ] Distributed storage
+- [ ] Monitoring and alerting
+- [ ] Common applications: Gitea, Jellyfin, Paperless...
+- [ ] Automated bare metal provisioning with PXE boot
+- [ ] Automatic rolling upgrade for OS and Kubernetes
+- [ ] Automatically update apps (with approval)
+- [ ] Modular architecture, easy to add or remove features/components
+- [ ] Automatically update DNS records for exposed services
+- [ ] Automated certificate management
+- [ ] Expose services to the internet securely with [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/)
+- [ ] VPN (Tailscale or Wireguard)
+- [ ] Private container registry
+- [ ] Support multiple environments (dev, prod)
+- [ ] Single sign-on
+- [ ] Infrastructure testing
 
 ## Demo
+
+![Cluster Status](./assets/ProxmoxClusterStatus.png)
 
 ### Tech Stack
 
@@ -43,20 +82,40 @@ More information can be found in [the roadmap](#roadmap) below.
         <th>Description</th>
     </tr>
     <tr>
+        <td><img width="32" src="https://simpleicons.org/icons/proxmox.svg"></td>
+        <td><a href="https://www.proxmox.com/en/">Proxmox VE</a></td>
+        <td>An Open-source server management platform for enterprise virtualization</td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://simpleicons.org/icons/proxmox.svg"></td>
+        <td><a href="https://www.proxmox.com/en/products/proxmox-backup-server/overview">Proxmox Backup Server</a></td>
+        <td>An enterprise backup solution, for backing up and restoring VMs, containers, and physical hosts</td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://simpleicons.org/icons/truenas.svg"></td>
+        <td><a href="https://www.truenas.com/">TrueNAS</a></td>
+        <td>Provision, Manage and Access your NAS</td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://simpleicons.org/icons/terraform.svg"></td>
+        <td><a href="https://www.terraform.io/">Terraform</a></td>
+        <td>Automate bare metal provisioning</td>
+    </tr>
+    <tr>
         <td><img width="32" src="https://simpleicons.org/icons/ansible.svg"></td>
         <td><a href="https://www.ansible.com">Ansible</a></td>
-        <td>Automate bare metal provisioning and configuration</td>
+        <td>Automate bare metal configuration</td>
     </tr>
     <tr>
         <td><img width="32" src="https://avatars.githubusercontent.com/u/13629408"></td>
         <td><a href="https://kubernetes.io">Kubernetes</a></td>
         <td>Container-orchestration system, the backbone of this project</td>
     </tr>
-    <tr>
+    <!-- <tr>
         <td><img width="32" src="https://avatars.githubusercontent.com/u/30269780"></td>
         <td><a href="https://argoproj.github.io/cd">ArgoCD</a></td>
         <td>GitOps tool built to deploy applications to Kubernetes</td>
-    </tr>
+    </tr> -->
     <!-- <tr>
         <td><img width="32" src="https://github.com/jetstack/cert-manager/raw/master/logo/logo.png"></td>
         <td><a href="https://cert-manager.io">cert-manager</a></td>
@@ -93,7 +152,7 @@ More information can be found in [the roadmap](#roadmap) below.
         <td>Self-hosted Git service</td>
     </tr>
 -->
-    <tr>
+    <!-- <tr>
         <td><img width="32" src="https://grafana.com/static/img/menu/grafana2.svg"></td>
         <td><a href="https://grafana.com">Grafana</a></td>
         <td>Observability platform</td>
@@ -102,7 +161,7 @@ More information can be found in [the roadmap](#roadmap) below.
         <td><img width="32" src="https://helm.sh/img/helm.svg"></td>
         <td><a href="https://helm.sh">Helm</a></td>
         <td>The package manager for Kubernetes</td>
-    </tr>
+    </tr> -->
 <!--
     <tr>
         <td><img width="32" src="https://avatars.githubusercontent.com/u/49319725"></td>
@@ -114,11 +173,17 @@ More information can be found in [the roadmap](#roadmap) below.
         <td><a href="https://kanidm.com">Kanidm</a></td>
         <td>Modern and simple identity management platform</td>
     </tr>
-
+-->
+<!--
     <tr>
         <td><img width="32" src="https://github.com/grafana/loki/blob/main/docs/sources/logo.png?raw=true"></td>
         <td><a href="https://grafana.com/oss/loki">Loki</a></td>
         <td>Log aggregation system</td>
+    </tr>
+    <tr>
+        <td><img width="32" src="https://avatars.githubusercontent.com/u/3380462"></td>
+        <td><a href="https://prometheus.io">Prometheus</a></td>
+        <td>Systems monitoring and alerting toolkit</td>
     </tr>
     <tr>
         <td><img width="32" src="https://avatars.githubusercontent.com/u/1412239?s=200&v=4"></td>
@@ -136,11 +201,6 @@ More information can be found in [the roadmap](#roadmap) below.
         <td>Notification service to send notifications to your phone or desktop</td>
     </tr>
     <tr>
-        <td><img width="32" src="https://avatars.githubusercontent.com/u/3380462"></td>
-        <td><a href="https://prometheus.io">Prometheus</a></td>
-        <td>Systems monitoring and alerting toolkit</td>
-    </tr> -->
-    <!-- <tr>
         <td><img width="32" src="https://docs.renovatebot.com/assets/images/logo.png"></td>
         <td><a href="https://www.whitesourcesoftware.com/free-developer-tools/renovate">Renovate</a></td>
         <td>Automatically update dependencies</td>
