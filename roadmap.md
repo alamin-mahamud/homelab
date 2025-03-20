@@ -2,12 +2,6 @@
 
 This roadmap outlines my journey to create a full-blown Home Lab that spans from virtualization and container orchestration to advanced monitoring and automation.
 
-- **Foundation & Infrastructure Setup**
-- **Proxmox Mastery & Virtualization**
-- **Kubernetes Mastery & Container Orchestration**
-- **Equipment & Hardware Considerations**
-- **AI/ML Workloads**
-
 ## Foundation & Infrastructure Setup
 
 - **Initial Equipment Integration**
@@ -22,8 +16,6 @@ This roadmap outlines my journey to create a full-blown Home Lab that spans from
 - **Storage**
   - Deploy TrueNAS for centralized storage management.
 
----
-
 ## Proxmox Mastery & Virtualization
 
 - **Proxmox Cluster**
@@ -33,8 +25,6 @@ This roadmap outlines my journey to create a full-blown Home Lab that spans from
 - **Virtualized Environments**
   - Set up Ubuntu Desktop on Proxmox with GPU support.
   - Secure the lab with SSL certificates.
-
----
 
 ## Kubernetes Mastery & Container Orchestration
 
@@ -62,7 +52,9 @@ This roadmap outlines my journey to create a full-blown Home Lab that spans from
   - Utilize Terraform for infrastructure provisioning.
   - Leverage Ansible for configuration management and automation.
 
----
+## AI/ML Workloads
+
+( WIP )
 
 ## Equipment & Hardware Considerations
 
@@ -77,14 +69,6 @@ This roadmap outlines my journey to create a full-blown Home Lab that spans from
   - Ensure stable power with a UPS.
 - **Security & Future-Proofing**
   - Maintain robust network security with a dedicated hardware firewall.
-
----
-
-## AI/ML Workloads
-
-( WIP )
-
----
 
 ## Final Thoughts
 
