@@ -1,0 +1,9 @@
+---
+
+# - import_playbook: k8s.yml
+# - import_playbook: containerd.yml
+# - import_playbook: pre-requisites.yml
+# - import_playbook: initialize_first_master.yml
+- import_playbook: join_masters.yml
+- import_playbook: join_workers.yml
+- import_playbook: cni.yml

@@ -1,0 +1,101 @@
+---
+- name: Initialize first control plane
+  hosts: first_master
+  become: yes
+  gather_facts: yes
+  vars:
+    pod_network_cidr: "192.168.0.0/16"
+    control_plane_endpoint: "10.2.0.1:6443"
+
+  tasks:
+    - name: Check if Kubernetes cluster is already initialized
+      stat:
+        path: /etc/kubernetes/admin.conf
+      register: admin_conf
+
+    - name: empty config file for kubeadm configuring
+      copy:
+        content: ""
+        dest: /etc/kubernetes/kubeadm-config.yaml
+        force: no
+      when: not admin_conf.stat.exists
+
+    - name: configure cluster
+      when: not admin_conf.stat.exists
+      blockinfile:
+        path: /etc/kubernetes/kubeadm-config.yaml
+        block: |
+          kind: ClusterConfiguration
+          apiVersion: kubeadm.k8s.io/v1beta3
+          controlPlaneEndpoint: "{{ control_plane_endpoint }}"
+          networking:
+            podSubnet: "{{ pod_network_cidr }}"
+          ---
+          kind: KubeletConfiguration
+          apiVersion: kubelet.config.k8s.io/v1beta1
+          runtimeRequestTimeout: "15m"
+          cgroupDriver: "systemd"
+          systemReserved:
+            cpu: 100m
+            memory: 350M
+          kubeReserved:
+            cpu: 100m
+            memory: 50M
+          enforceNodeAllocatable:
+          - pods
+
+    - name: Initialize the cluster
+      register: init_output
+      when: not admin_conf.stat.exists
+      shell: kubeadm init --config /etc/kubernetes/kubeadm-config.yaml
+
+    - name: Upload certificates and get certificate key for control plane join
+      command: kubeadm init phase upload-certs --upload-certs
+      when: not admin_conf.stat.exists
+      register: upload_certs_output
+
+    - name: Extract certificate key from upload certs output
+      set_fact:
+        cert_key: "{{ upload_certs_output.stdout | regex_search('(?s)Using certificate key:\\s*(\\S+)', '\\1') }}"
+      when: not admin_conf.stat.exists
+
+    - name: Display kubeadm init output
+      debug:
+        msg: "{{ init_output.stdout }}"
+      when: not admin_conf.stat.exists
+
+    - name: Warn if Kubernetes cluster is already initialized
+      debug:
+        msg: "Kubernetes cluster is already initialized. Skipping kubeadm init."
+      when: admin_conf.stat.exists
+
+    - name: setup kubeconfig for user
+      when: not admin_conf.stat.exists
+      shell: |
+        mkdir -p $HOME/.kube
+        cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+        chown $(id -u):$(id -g) $HOME/.kube/config
+
+    - name: Generate join command
+      command: kubeadm token create --print-join-command
+      register: join_command
+
+    - name: Generate worker join command
+      command: kubeadm token create --print-join-command
+      register: worker_join_output
+
+    - name: Set join command for worker nodes as fact on first_master
+      set_fact:
+        join_command_worker: "{{ worker_join_output.stdout }}"
+
+    - name: Construct join command for additional control plane nodes
+      set_fact:
+        join_command_master: "{{ worker_join_output.stdout }} --control-plane --certificate-key {{ cert_key }}"
+      when: cert_key is defined
+
+    - name: Debug output - show join commands
+      debug:
+        msg:
+          - "Worker join command: {{ join_command_worker }}"
+          - "Control plane join command: {{ join_command_master }}"
+

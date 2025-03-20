@@ -40,12 +40,13 @@
         path: /etc/containerd/config.toml
         regexp: "            SystemdCgroup = false"
         line: "            SystemdCgroup = true"
-      notify: Restart containerd
 
-  handlers:
-    - name: Restart containerd
-      service:
+    - name: Enable and start containerd
+      systemd:
         name: containerd
         state: restarted
+        enabled: yes
+        daemon-reload: yes
+
 
 
