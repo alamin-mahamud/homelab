@@ -1,0 +1,8 @@
+---
+- name: Setup Kubernetes Controller Node
+  hosts: all
+  become: true
+  tasks:
+    - name: Print Hello World message
+      debug:
+        msg: "Hello World"
