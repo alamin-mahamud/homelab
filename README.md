@@ -47,6 +47,42 @@ More information can be found in [the roadmap](#roadmap) below.
   - Ports: `8`
   - Speed: `1000Mbps`
 
+
+### 42U Rack Server ( WIP )
+
+| U-Position | Device / Function                         | Description                                               |
+|------------|--------------------------------------------|-----------------------------------------------------------|
+| 42         | Cable Management Arm                      | Top-side cable routing                                    |
+| 41         | Top-of-Rack 100GbE Switch                 | Core Networking (AI & Storage Fabric)                     |
+| 40         | Top-of-Rack 1GbE Switch                   | Management & IPMI Network                                 |
+| 39         | Patch Panel                               | Network cabling and cross-connect                         |
+| 38         | Airflow Blanking Panel                    | Maintain front-to-back airflow                            |
+| 37         | Compute Node #1                           | Proxmox VE + GPU (AI) - Dual EPYC, 1TB RAM, 2x A100       |
+| 36         | Compute Node #2                           | Proxmox VE + GPU (AI) - Similar Spec                      |
+| 35         | Compute Node #3                           | Proxmox VE - General Purpose / HA                         |
+| 34         | Compute Node #4                           | Proxmox VE - General Purpose / HA                         |
+| 33         | Compute Node #5                           | Optional GPU + TensorFlow Serving / Triton                |
+| 32         | Compute Node #6 (Optional Expansion)      | Expansion Slot                                            |
+| 31         | Airflow Blanking Panel                    | Separation & Airflow                                      |
+| 30         | Ceph Storage Node #1                      | 12-bay + 2x NVMe for WAL/DB - 256GB RAM                   |
+| 29         | Ceph Storage Node #2                      | Same Spec                                                 |
+| 28         | Ceph Storage Node #3                      | Same Spec                                                 |
+| 27         | Ceph Storage Node #4 (Expansion/HA)       | Optional node for redundancy                              |
+| 26         | Proxmox Backup Server (PBS)               | 2U backup node + ZFS Pool                                 |
+| 25         | Local ZFS NAS (Optional or Offload)       | For snapshots or cold storage backup                      |
+| 24         | Airflow Blanking Panel                    |                                                           |
+| 23         | pfSense / OPNsense Firewall Appliance     | UTM + VLAN Gateway + Remote Access VPN                    |
+| 22         | Management Jumpbox (Mini PC or 1U)        | Bastion host, monitoring, Ansible control, etc.           |
+| 21         | Power Control Appliance (PDU interface)   | Remote management, automated power reset                  |
+| 20         | KVM-over-IP / Console Server              | Remote BIOS/Boot access for all nodes                     |
+| 19         | 1U Utility Drawer (Optional)              | USBs, tools, SSDs, network testers                        |
+| 18         | Airflow Blanking Panel                    |                                                           |
+| 17         | UPS #1 (Battery Backup)                   | Clean shutdown for critical systems                       |
+| 16         | UPS #2 (Battery Backup)                   | Separate power domain for redundancy                      |
+| 15         | PDU A (Smart or Metered)                  | For even power distribution                               |
+| 14         | PDU B (Smart or Metered)                  | Dual PSU setup support                                    |
+| 13 - 1     | Reserved for expansion                    | Extra compute / GPU / storage or test bench               |
+
 ### Features
 
 - [x] Automated backup and restore
