@@ -28,11 +28,15 @@ Expect breaking changes that may require a complete redeployment.
 A proper upgrade path is planned for the stable release.
 More information can be found in [the roadmap](#roadmap) below.
 
+## Demo
+
+<img src="./assets/ProxmoxClusterStatus.png" alt="Cluster Status" width="300" align="left" style="max-width:300px;">
+
 ## Hardware
 
-![Home Server](./assets/HomeServer.jpg)
-![Raspberry Pi 5](https://assets.raspberrypi.com/static/8f6eca535dbb23a21eb41a748050e3a0/f7ad0/16gb.webp)
-![Cudy Switch](https://www.cudy.com/cdn/shop/files/A__GS108_1464x600-2.jpg)
+<img src="./assets/HomeServer.jpg" alt="HomeServer" width="300" align="left" style="max-width:300px;">
+<img src="https://assets.raspberrypi.com/static/8f6eca535dbb23a21eb41a748050e3a0/f7ad0/16gb.webp" alt="Raspberry Pi 5" width="300" align="left" style="max-width:300px;">
+<img src="https://www.cudy.com/cdn/shop/files/A__GS108_1464x600-2.jpg" alt="Cudy Switch" width="300" align="left" style="max-width:300px;">
 
 - MultiTasking Home Server (Custom Made):
   - CPU: `32 x AMD Ryzen 9 7950X 16-Core Processor (1 Socket)`
@@ -105,9 +109,6 @@ More information can be found in [the roadmap](#roadmap) below.
 - [ ] Single sign-on
 - [ ] Infrastructure testing
 
-## Demo
-
-![Cluster Status](./assets/ProxmoxClusterStatus.png)
 
 ### Tech Stack
 
