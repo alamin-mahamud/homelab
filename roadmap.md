@@ -61,29 +61,29 @@ The hardware is organized into four phases, allowing you to start with a minimum
 
 ### 🔹 Phase 0: Start Homelab
 
-| Item                         | Description                                                 | Qty | Unit Price (Est.) | Notes                         | Purchased |
-| ---------------------------- | ----------------------------------------------------------- | --- | ----------------- | ----------------------------- | --------- |
-| **MultiTasking Home Server** | 2U Server, AMD Ryzen, 128GB Non-ECC RAM, 1x 2TB NVMe, 1 GPU | 1   | $3,500            | Bootstrap node for management | √         |
-| **Raspberry Pi 5**           | 4 CPU, 8GB RAM, 64GB                                        | 1   | $200              | Small, Lightweight workloads  | √         |
-| **Desktop Switch**           | 8 Port Gigabit Switch - Unmanaged                           | 1   | $15               | Unmanaged Switch              | √         |
-| **TP-Link Router**           | AX6600 Tri-Band Gigabit Wi-Fi 6 Router                      | 1   | $200              | Wifi 6 + LAN                  | √         |
+| Item               | Description                                                 | Qty | Unit Price (Est.) | Notes                        | Purchased |
+| ------------------ | ----------------------------------------------------------- | --- | ----------------- | ---------------------------- | --------- |
+| **Home Server**    | 2U Server, AMD Ryzen, 128GB Non-ECC RAM, 1x 2TB NVMe, 1 GPU | 1   | $3,500            | General Purpose Home Server  | √         |
+| **Raspberry Pi 5** | 4 CPU, 8GB RAM, 64GB                                        | 1   | $200              | Small, Lightweight workloads | √         |
+| **Desktop Switch** | 8 Port Gigabit Switch - Unmanaged                           | 1   | $15               | Unmanaged Switch             | √         |
+| **TP-Link Router** | AX6600 Tri-Band Gigabit Wi-Fi 6 Router                      | 1   | $200              | Wifi 6 + LAN                 | √         |
 
 ### 🔹 Phase Next: NAS Storage
 
 | Item                  | Description                    | Qty | Unit Price (Est.) | Notes         | Purchased / Link                                          |
 | --------------------- | ------------------------------ | --- | ----------------- | ------------- | --------------------------------------------------------- |
-| **NAS Server**        | 2U Server, 200TB HDD           | 1   | $5,000            | NAS           | [192 TB NAS](https://www.youtube.com/watch?v=nKeENirsiTs) |
+| **NAS Server**        | 2U Server, 200TB HDD           | 1   | $6,000            | NAS           | [192 TB NAS](https://www.youtube.com/watch?v=nKeENirsiTs) |
 | **CloudFlare Access** | Secure Access to your Services | 1   | $5 per Month      | Secure Access |                                                           |
 
 ### 🔹 Phase: Server Infras
 
-| Item                           | Description                                                                                | Qty | Unit Price (Est.) | Notes                     | Product Link                                                                                                                                    |
-| ------------------------------ | ------------------------------------------------------------------------------------------ | --- | ----------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| **42U Rack**                   | 42U Rack                                                                                   | 1   | $500              | Rack                      | (Toten 42U Rack)[https://www.startech.com.bd/toten-el28100-42-42u-server-rack?srsltid=AfmBOorH3X8EaoAZL6_2WWF5BkoJmEu1ZQfGELIsXEKV_V_YiPOS1I4J] |
-| **Management Switch (10GbE)**  | 10G Cloud Gateway with 100+ UniFi device / 1,000+ client support and 3.5 Gbps IPS routing. | 1   | $200–$500         | For management and IPMI   | [UDM Pro](https://store.ui.com/us/en/products/udm-pro)                                                                                          |
-| **pfSense/OPNsense Appliance** | 1U Mini Box with 2–4 NICs                                                                  | 1   | $300–$700         | UTM firewall, VPN gateway | [Netgate SG-1100](https://www.netgate.com/appliances/sg-1100/)                                                                                  |
-| **UPS**                        | 1500VA+ Smart UPS                                                                          | 1   | $300–$600         | Power backup              | [APC Smart-UPS 1500VA](https://www.apc.com/shop/us/en/products/APC-Smart-UPS-1500VA-LCD-120V/P-SMT1500)                                         |
-| **Smart PDU**                  | Metered/Switched 8–12 Outlets                                                              | 1   | $250–$500         | Remote power control      | [APC Smart PDU](https://www.apc.com/shop/us/en/products/APC-Smart-PDU-by-APC-6-outlet-220V/P-AP8959)                                            |
+| Item                           | Description                               | Qty | Unit Price (Est.) | Notes                     | Product Link                                                                                            |
+| ------------------------------ | ----------------------------------------- | --- | ----------------- | ------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **42U Rack**                   | 42U Rack                                  | 1   | $500              | Rack                      | [Toten 42U Rack](https://www.startech.com.bd/toten-el28100-42-42u-server-rack)                          |
+| **Management Switch (10GbE)**  | 10G Cloud Gateway with 100+ UniFi device. | 1   | $200–$500         | For management and IPMI   | [UDM Pro](https://store.ui.com/us/en/products/udm-pro)                                                  |
+| **pfSense/OPNsense Appliance** | 1U Mini Box with 2–4 NICs                 | 1   | $300–$700         | UTM firewall, VPN gateway | [Netgate SG-1100](https://www.netgate.com/appliances/sg-1100/)                                          |
+| **UPS**                        | 1500VA+ Smart UPS                         | 1   | $300–$600         | Power backup              | [APC Smart-UPS 1500VA](https://www.apc.com/shop/us/en/products/APC-Smart-UPS-1500VA-LCD-120V/P-SMT1500) |
+| **Smart PDU**                  | Metered/Switched 8–12 Outlets             | 1   | $250–$500         | Remote power control      | [APC Smart PDU](https://www.apc.com/shop/us/en/products/APC-Smart-PDU-by-APC-6-outlet-220V/P-AP8959)    |
 
 ### 🔹 Phase Later: GPU Compute & High-Speed Networking
 
