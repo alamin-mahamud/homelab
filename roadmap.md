@@ -2,8 +2,6 @@
 
 This document outlines your journey to build a robust Home Lab—from foundational infrastructure through advanced orchestration and AI/ML workloads—and organizes the necessary hardware into phases. It also includes sample product links for reference.
 
----
-
 ## 1. Homelab Roadmap
 
 ### Foundation & Infrastructure Setup
@@ -57,15 +55,6 @@ This document outlines your journey to build a robust Home Lab—from foundation
 
 - _(Work in Progress as hardware scales)_
 
-### Equipment & Hardware Considerations
-
-- **Networking Hardware:** Upgrade to a 10GbE switch now and plan for future 100GbE networking.
-- **Storage & Compute Expansion:** Add extra SSDs and compute nodes as demand grows.
-- **Rack & Power:** Invest in a 42U rack cabinet and ensure stable power with a UPS.
-- **Security:** Deploy a dedicated hardware firewall (pfSense/OPNsense).
-
----
-
 ## 2. Hardware Purchase Plan – 42U Proxmox HomeLab
 
 The hardware is organized into four phases, allowing you to start with a minimum setup and scale up as your lab evolves.
@@ -80,8 +69,6 @@ The hardware is organized into four phases, allowing you to start with a minimum
 | **UPS**                        | 1500VA+ Smart UPS                                         | 1   | $300–$600         | Power backup                  | [APC Smart-UPS 1500VA](https://www.apc.com/shop/us/en/products/APC-Smart-UPS-1500VA-LCD-120V/P-SMT1500) |
 | **Smart PDU**                  | Metered/Switched 8–12 Outlets                             | 1   | $250–$500         | Remote power control          | [APC Smart PDU](https://www.apc.com/shop/us/en/products/APC-Smart-PDU-by-APC-6-outlet-220V/P-AP8959)    |
 
----
-
 ### 🔹 Phase 2: GPU Compute & High-Speed Networking
 
 | Item                   | Description                                                 | Qty | Unit Price (Est.) | Notes                            | Product Link                                                                           |
@@ -90,8 +77,6 @@ The hardware is organized into four phases, allowing you to start with a minimum
 | **Top-of-Rack Switch** | 25/100GbE L3 Switch (Mellanox/Aruba/MikroTik CRS)           | 1   | $1,000–$4,000     | High-speed data & storage fabric | [Mellanox Spectrum SN2700](https://www.mellanox.com/products/switches/spectrum-sn2700) |
 | **High-Speed NICs**    | Dual-port 25/100GbE RDMA NICs                               | 2–4 | $200–$800 each    | For compute & storage nodes      | [Mellanox ConnectX-5](https://www.mellanox.com/products/network-adapters/ethernet)     |
 | **DAC/Fiber Cables**   | 10–100Gbps short-run connections                            | 4–8 | $30–$70 each      | For high-speed interconnects     | [Mellanox DAC Cable](https://www.mellanox.com/products/cables/dac)                     |
-
----
 
 ### 🔹 Phase 3: Storage Cluster / Data Lake
 
@@ -102,8 +87,6 @@ The hardware is organized into four phases, allowing you to start with a minimum
 | **NVMe for WAL/DB**         | 1TB Gen4 NVMe (Samsung PM983/SN850X)                 | 6   | $100–$150 each    | For Ceph journal/cache     | [Samsung PM983](https://www.samsung.com/semiconductor/minisite/ssd/product/enterprise/pm983/) |
 | **ZFS NAS Node (Optional)** | 2U ZFS System, 8–12 drives (RAIDZ2/Striped Mirror)   | 1   | $2,000–$3,500     | For cold storage/snapshots | [Synology RackStation RS3617xs](https://www.synology.com/en-global/products/rs3617xs)         |
 
----
-
 ### 🔹 Phase 4: Backup, Monitoring & Expansion
 
 | Item                        | Description                                                | Qty | Unit Price (Est.)  | Notes                       | Product Link                                                                                                                   |
@@ -112,8 +95,6 @@ The hardware is organized into four phases, allowing you to start with a minimum
 | **Monitoring Node**         | 1U/Mini Server (Grafana, Prometheus, Loki, node_exporter)  | 1   | $300–$800          | Infrastructure monitoring   | [ASUS PN50 Mini PC](https://www.asus.com/us/Mini-PCs/ASUS-PN50/)                                                               |
 | **Expansion Compute Nodes** | Additional Proxmox VE nodes (similar to Phase 1 base node) | 2–4 | $1,800–$2,200 each | For scaling out the cluster | [Supermicro 1U Server](https://www.supermicro.com/en/products/system/1u)                                                       |
 | **External Backup (NAS)**   | Synology/QNAP NAS or JBOD for cold storage                 | 1   | $500–$2,000        | For offsite/cold backup     | [Synology DiskStation DS920+](https://www.synology.com/en-global/products/DS920+)                                              |
-
----
 
 ## 3. Summary Budget
 
@@ -124,13 +105,9 @@ The hardware is organized into four phases, allowing you to start with a minimum
 | Phase 3 | Storage Cluster / Data Lake         | $12,000 – $25,000+   |
 | Phase 4 | Backup, Monitoring & Expansion      | $4,000 – $8,000      |
 
----
-
-## ☀️ Solar Power Plan for 42U Rack Homelab (Bangladesh)
+## ☀️ Solar Power Plan for 42U Rack Homelab
 
 This plan outlines the solar and battery requirements to run a full-blown Proxmox-based 42U rack homelab on renewable energy.
-
----
 
 ### ⚙️ System Load & Configuration
 
@@ -142,8 +119,6 @@ This plan outlines the solar and battery requirements to run a full-blown Proxmo
 | **Average Sunlight Hours**  | 5 hours/day |
 | **Battery Backup Capacity** | 100 kWh     |
 
----
-
 ### ☀️ Solar & Battery Performance
 
 | Metric                               | Value                    |
@@ -153,19 +128,12 @@ This plan outlines the solar and battery requirements to run a full-blown Proxmo
 | **Overnight Load (12 hours @ 10kW)** | 120 kWh                  |
 | **Battery Coverage**                 | 83.3% of night load 🔋   |
 
----
-
 ### 💰 Financial Impact (🇧🇩 Bangladesh)
 
 | Metric                       | Value                |
 | ---------------------------- | -------------------- |
-| **Electricity Cost**         | ৳10 per kWh          |
+| **Electricity Cost**         | ৳10 per kWh (est.)   |
 | **Annual Energy Usage**      | 87,600 kWh           |
 | **Annual Savings**           | **৳876,000/year** 💸 |
 | **Estimated System Cost**    | ~**৳10,000,000**     |
 | **Estimated Payback Period** | **~11 years** 🕒     |
-
----
-
-✅ **Conclusion**:
-This solar plan fully supports your homelab with a **slight daily surplus**, and the battery covers **83% of overnight demand**. With a payback period under 8 years, it’s a sustainable and cost-effective approach for long-term infrastructure.
