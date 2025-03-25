@@ -59,17 +59,33 @@ This document outlines your journey to build a robust Home Lab—from foundation
 
 The hardware is organized into four phases, allowing you to start with a minimum setup and scale up as your lab evolves.
 
-### 🔹 Phase 1: Core Infrastructure & Management
+### 🔹 Phase 0: Start Homelab
 
-| Item                           | Description                                               | Qty | Unit Price (Est.) | Notes                         | Product Link                                                                                            |
-| ------------------------------ | --------------------------------------------------------- | --- | ----------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------- |
-| **Proxmox Base Node**          | 1U Server, AMD EPYC/Xeon, 64–96GB ECC RAM, 2x 1.92TB NVMe | 1   | $1,800–$2,500     | Bootstrap node for management | [Supermicro 1U Server](https://www.supermicro.com/en/products/system/1u)                                |
-| **Management Switch (1GbE)**   | 24/48-port L2+ Managed Switch (VLAN capable)              | 1   | $200–$500         | For management and IPMI       | [Cisco SG350-28](https://www.cisco.com/c/en/us/products/switches/sg350-28-managed-switch/index.html)    |
-| **pfSense/OPNsense Appliance** | 1U Mini Box with 2–4 NICs                                 | 1   | $300–$700         | UTM firewall, VPN gateway     | [Netgate SG-1100](https://www.netgate.com/appliances/sg-1100/)                                          |
-| **UPS**                        | 1500VA+ Smart UPS                                         | 1   | $300–$600         | Power backup                  | [APC Smart-UPS 1500VA](https://www.apc.com/shop/us/en/products/APC-Smart-UPS-1500VA-LCD-120V/P-SMT1500) |
-| **Smart PDU**                  | Metered/Switched 8–12 Outlets                             | 1   | $250–$500         | Remote power control          | [APC Smart PDU](https://www.apc.com/shop/us/en/products/APC-Smart-PDU-by-APC-6-outlet-220V/P-AP8959)    |
+| Item                         | Description                                                 | Qty | Unit Price (Est.) | Notes                         | Purchased |
+| ---------------------------- | ----------------------------------------------------------- | --- | ----------------- | ----------------------------- | --------- |
+| **MultiTasking Home Server** | 2U Server, AMD Ryzen, 128GB Non-ECC RAM, 1x 2TB NVMe, 1 GPU | 1   | $3,500            | Bootstrap node for management | √         |
+| **Raspberry Pi 5**           | 4 CPU, 8GB RAM, 64GB                                        | 1   | $200              | Small, Lightweight workloads  | √         |
+| **Desktop Switch**           | 8 Port Gigabit Switch - Unmanaged                           | 1   | $15               | Unmanaged Switch              | √         |
+| **TP-Link Router**           | AX6600 Tri-Band Gigabit Wi-Fi 6 Router                      | 1   | $200              | Wifi 6 + LAN                  | √         |
 
-### 🔹 Phase 2: GPU Compute & High-Speed Networking
+### 🔹 Phase Next: NAS Storage
+
+| Item                  | Description                    | Qty | Unit Price (Est.) | Notes         | Purchased / Link                                          |
+| --------------------- | ------------------------------ | --- | ----------------- | ------------- | --------------------------------------------------------- |
+| **NAS Server**        | 2U Server, 200TB HDD           | 1   | $5,000            | NAS           | [192 TB NAS](https://www.youtube.com/watch?v=nKeENirsiTs) |
+| **CloudFlare Access** | Secure Access to your Services | 1   | $5 per Month      | Secure Access |                                                           |
+
+### 🔹 Phase: Server Infras
+
+| Item                           | Description                                                                                | Qty | Unit Price (Est.) | Notes                     | Product Link                                                                                                                                    |
+| ------------------------------ | ------------------------------------------------------------------------------------------ | --- | ----------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **42U Rack**                   | 42U Rack                                                                                   | 1   | $500              | Rack                      | (Toten 42U Rack)[https://www.startech.com.bd/toten-el28100-42-42u-server-rack?srsltid=AfmBOorH3X8EaoAZL6_2WWF5BkoJmEu1ZQfGELIsXEKV_V_YiPOS1I4J] |
+| **Management Switch (10GbE)**  | 10G Cloud Gateway with 100+ UniFi device / 1,000+ client support and 3.5 Gbps IPS routing. | 1   | $200–$500         | For management and IPMI   | [UDM Pro](https://store.ui.com/us/en/products/udm-pro)                                                                                          |
+| **pfSense/OPNsense Appliance** | 1U Mini Box with 2–4 NICs                                                                  | 1   | $300–$700         | UTM firewall, VPN gateway | [Netgate SG-1100](https://www.netgate.com/appliances/sg-1100/)                                                                                  |
+| **UPS**                        | 1500VA+ Smart UPS                                                                          | 1   | $300–$600         | Power backup              | [APC Smart-UPS 1500VA](https://www.apc.com/shop/us/en/products/APC-Smart-UPS-1500VA-LCD-120V/P-SMT1500)                                         |
+| **Smart PDU**                  | Metered/Switched 8–12 Outlets                                                              | 1   | $250–$500         | Remote power control      | [APC Smart PDU](https://www.apc.com/shop/us/en/products/APC-Smart-PDU-by-APC-6-outlet-220V/P-AP8959)                                            |
+
+### 🔹 Phase Later: GPU Compute & High-Speed Networking
 
 | Item                   | Description                                                 | Qty | Unit Price (Est.) | Notes                            | Product Link                                                                           |
 | ---------------------- | ----------------------------------------------------------- | --- | ----------------- | -------------------------------- | -------------------------------------------------------------------------------------- |
@@ -78,7 +94,7 @@ The hardware is organized into four phases, allowing you to start with a minimum
 | **High-Speed NICs**    | Dual-port 25/100GbE RDMA NICs                               | 2–4 | $200–$800 each    | For compute & storage nodes      | [Mellanox ConnectX-5](https://www.mellanox.com/products/network-adapters/ethernet)     |
 | **DAC/Fiber Cables**   | 10–100Gbps short-run connections                            | 4–8 | $30–$70 each      | For high-speed interconnects     | [Mellanox DAC Cable](https://www.mellanox.com/products/cables/dac)                     |
 
-### 🔹 Phase 3: Storage Cluster / Data Lake
+### 🔹 Phase Later: Storage Cluster / Data Lake
 
 | Item                        | Description                                          | Qty | Unit Price (Est.) | Notes                      | Product Link                                                                                  |
 | --------------------------- | ---------------------------------------------------- | --- | ----------------- | -------------------------- | --------------------------------------------------------------------------------------------- |
@@ -87,7 +103,7 @@ The hardware is organized into four phases, allowing you to start with a minimum
 | **NVMe for WAL/DB**         | 1TB Gen4 NVMe (Samsung PM983/SN850X)                 | 6   | $100–$150 each    | For Ceph journal/cache     | [Samsung PM983](https://www.samsung.com/semiconductor/minisite/ssd/product/enterprise/pm983/) |
 | **ZFS NAS Node (Optional)** | 2U ZFS System, 8–12 drives (RAIDZ2/Striped Mirror)   | 1   | $2,000–$3,500     | For cold storage/snapshots | [Synology RackStation RS3617xs](https://www.synology.com/en-global/products/rs3617xs)         |
 
-### 🔹 Phase 4: Backup, Monitoring & Expansion
+### 🔹 Phase Later: Backup, Monitoring & Expansion
 
 | Item                        | Description                                                | Qty | Unit Price (Est.)  | Notes                       | Product Link                                                                                                                   |
 | --------------------------- | ---------------------------------------------------------- | --- | ------------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
@@ -98,12 +114,14 @@ The hardware is organized into four phases, allowing you to start with a minimum
 
 ## 3. Summary Budget
 
-| Phase   | Purpose                             | Estimated Cost Range |
-| ------- | ----------------------------------- | -------------------- |
-| Phase 1 | Core Infrastructure & Management    | $2,500 – $4,500      |
-| Phase 2 | GPU Compute & High-Speed Networking | $15,000 – $50,000+   |
-| Phase 3 | Storage Cluster / Data Lake         | $12,000 – $25,000+   |
-| Phase 4 | Backup, Monitoring & Expansion      | $4,000 – $8,000      |
+| Purpose                             | Estimated Cost Range |
+| ----------------------------------- | -------------------- |
+| Start HomeLab                       | $4000                |
+| NAS Storage                         | $6000                |
+| Server Infras                       | $2500                |
+| Backup, Monitoring & Expansion      | $8,000               |
+| Storage Cluster / Data Lake         | $25,000+             |
+| GPU Compute & High-Speed Networking | $50,000+             |
 
 ## ☀️ Solar Power Plan for 42U Rack Homelab
 
