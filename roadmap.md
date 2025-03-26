@@ -75,7 +75,7 @@ The hardware is organized into four phases, allowing you to start with a minimum
 | **NAS Server**        | 2U Server, 200TB HDD           | 1   | $6,000            | NAS           | [192 TB NAS](https://www.youtube.com/watch?v=nKeENirsiTs) |
 | **CloudFlare Access** | Secure Access to your Services | 1   | $5 per Month      | Secure Access |                                                           |
 
-### 🔹 Phase: Server Infras
+### 🔹 Phase Later: Server Infras
 
 | Item                           | Description                               | Qty | Unit Price (Est.) | Notes                     | Product Link                                                                                            |
 | ------------------------------ | ----------------------------------------- | --- | ----------------- | ------------------------- | ------------------------------------------------------------------------------------------------------- |
