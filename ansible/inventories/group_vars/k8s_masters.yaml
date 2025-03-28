@@ -1,0 +1,2 @@
+# Variables specific to master nodes
+is_master: true

@@ -1,0 +1,2 @@
+# Variables specific to worker nodes
+is_master: false
