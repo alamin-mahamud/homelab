@@ -67,6 +67,3 @@ jobs:
 
   #     - name: Run Ansible Playbook
   #       run: ansible-playbook -i ansible/inventory/hosts ansible/playbooks/base.yml
-
-  kubeadm join 10.2.0.1:6443 --token wdqu4t.vqiy7olg3gj59y1j \
-        --discovery-token-ca-cert-hash sha256:2ee9a620df7ba175f6e5836c2ae88ce5aa728ebb5c9c5f38f1
