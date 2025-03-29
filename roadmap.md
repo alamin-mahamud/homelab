@@ -57,7 +57,21 @@ This document outlines your journey to build a robust Home Lab—from foundation
 
 ## 2. Hardware Purchase Plan – 42U Proxmox HomeLab
 
-The hardware is organized into four phases, allowing you to start with a minimum setup and scale up as your lab evolves.
+### 42U Rack Server ( WIP )
+
+| U   | Device / Function                                                                   | Description                                                |
+| --- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| 1U  | Cable Management Arm                                                                | Top-side cable routing                                     |
+| 1U  | [Top-of-Rack 10GbE Switch](https://store.ui.com/us/en/products/udm-pro)             | Management & IPMI Network                                  |
+| 1U  | [Patch Panel](https://www.startech.com.bd/rosenberger-1u-metal-cable-manager-panel) | Network cabling and cross-connect                          |
+| 18U | Compute Node(s)                                                                     | Proxmox VE, 16C 32T, 128GB Non-ECC RAM, 1x 2TB NVMe, 1 GPU |
+| 14U | Ceph Storage Node(s)                                                                | 12-bay + 2x NVMe for WAL/DB - 256GB RAM                    |
+| 1U  | KVM-over-IP / Console Server                                                        | Remote BIOS/Boot access for all nodes                      |
+| 4U  | UPS #1 (Battery Backup)                                                             | Clean shutdown for critical systems                        |
+| 1U  | 1U Utility Drawer (Optional)                                                        | USBs, tools, SSDs, network testers                         |
+| 1U  | PDU A (Smart or Metered)                                                            | For even power distribution                                |
+
+The hardware is organized into four phases, allowing me to start with a minimum setup and scale up as my lab evolves.
 
 ### 🔹 Phase 0: Start Homelab
 
@@ -72,62 +86,52 @@ The hardware is organized into four phases, allowing you to start with a minimum
 
 | Item                  | Description                    | Qty | Unit Price (Est.) | Notes         | Purchased / Link                                          |
 | --------------------- | ------------------------------ | --- | ----------------- | ------------- | --------------------------------------------------------- |
-| **NAS Server**        | 2U Server, 200TB HDD           | 1   | $6,000            | NAS           | [192 TB NAS](https://www.youtube.com/watch?v=nKeENirsiTs) |
+| **NAS Server**        | 2U Server, 20TB HDD            | 1   | $2,000            | NAS           | [192 TB NAS](https://www.youtube.com/watch?v=nKeENirsiTs) |
 | **CloudFlare Access** | Secure Access to your Services | 1   | $5 per Month      | Secure Access |                                                           |
 
 ### 🔹 Phase Later: Server Infras
 
-| Item                           | Description                               | Qty | Unit Price (Est.) | Notes                     | Product Link                                                                                            |
-| ------------------------------ | ----------------------------------------- | --- | ----------------- | ------------------------- | ------------------------------------------------------------------------------------------------------- |
-| **42U Rack**                   | 42U Rack                                  | 1   | $500              | Rack                      | [Toten 42U Rack](https://www.startech.com.bd/toten-el28100-42-42u-server-rack)                          |
-| **Management Switch (10GbE)**  | 10G Cloud Gateway with 100+ UniFi device. | 1   | $200–$500         | For management and IPMI   | [UDM Pro](https://store.ui.com/us/en/products/udm-pro)                                                  |
-| **pfSense/OPNsense Appliance** | 1U Mini Box with 2–4 NICs                 | 1   | $300–$700         | UTM firewall, VPN gateway | [Netgate SG-1100](https://www.netgate.com/appliances/sg-1100/)                                          |
-| **UPS**                        | 1500VA+ Smart UPS                         | 1   | $300–$600         | Power backup              | [APC Smart-UPS 1500VA](https://www.apc.com/shop/us/en/products/APC-Smart-UPS-1500VA-LCD-120V/P-SMT1500) |
-| **Smart PDU**                  | Metered/Switched 8–12 Outlets             | 1   | $250–$500         | Remote power control      | [APC Smart PDU](https://www.apc.com/shop/us/en/products/APC-Smart-PDU-by-APC-6-outlet-220V/P-AP8959)    |
+| Item                          | Description                               | Qty | Unit Price (Est.) | Notes                   | Product Link                                                                   |
+| ----------------------------- | ----------------------------------------- | --- | ----------------- | ----------------------- | ------------------------------------------------------------------------------ |
+| **42U Rack**                  | 42U Rack                                  | 1   | $500              | Rack                    | [Toten 42U Rack](https://www.startech.com.bd/toten-el28100-42-42u-server-rack) |
+| **Management Switch (10GbE)** | 10G Cloud Gateway with 100+ UniFi device. | 1   | $400              | For management and IPMI | [UDM Pro](https://store.ui.com/us/en/products/udm-pro)                         |
+| **PDU**                       | PDU.                                      | 1   | $35               | PDU                     | [PDU](https://www.ryans.com/toten-10-port-aluminum-pdu-for-server-rack)        |
 
-### 🔹 Phase Later: GPU Compute & High-Speed Networking
+### 🔹 Phase Later: High-Speed Networking
 
-| Item                   | Description                                                 | Qty | Unit Price (Est.) | Notes                            | Product Link                                                                           |
-| ---------------------- | ----------------------------------------------------------- | --- | ----------------- | -------------------------------- | -------------------------------------------------------------------------------------- |
-| **GPU Compute Node**   | 2U Dual EPYC, 512GB RAM, 2x A100/H100/RTX 6000 ADA, 4x NVMe | 2   | $8,000–$25,000    | For AI training & inference      | [ASUS ESC8000 G4](https://www.asus.com/Commercial-Servers-Workstations/ESC8000-G4/)    |
-| **Top-of-Rack Switch** | 25/100GbE L3 Switch (Mellanox/Aruba/MikroTik CRS)           | 1   | $1,000–$4,000     | High-speed data & storage fabric | [Mellanox Spectrum SN2700](https://www.mellanox.com/products/switches/spectrum-sn2700) |
-| **High-Speed NICs**    | Dual-port 25/100GbE RDMA NICs                               | 2–4 | $200–$800 each    | For compute & storage nodes      | [Mellanox ConnectX-5](https://www.mellanox.com/products/network-adapters/ethernet)     |
-| **DAC/Fiber Cables**   | 10–100Gbps short-run connections                            | 4–8 | $30–$70 each      | For high-speed interconnects     | [Mellanox DAC Cable](https://www.mellanox.com/products/cables/dac)                     |
+| Item                | Description                   | Qty | Unit Price (Est.) | Notes                       | Product Link                                                                       |
+| ------------------- | ----------------------------- | --- | ----------------- | --------------------------- | ---------------------------------------------------------------------------------- |
+| **High-Speed NICs** | Dual-port 25/100GbE RDMA NICs | 1   | $500              | For compute & storage nodes | [Mellanox ConnectX-5](https://www.mellanox.com/products/network-adapters/ethernet) |
 
 ### 🔹 Phase Later: Storage Cluster / Data Lake
 
-| Item                        | Description                                          | Qty | Unit Price (Est.) | Notes                      | Product Link                                                                                  |
-| --------------------------- | ---------------------------------------------------- | --- | ----------------- | -------------------------- | --------------------------------------------------------------------------------------------- |
-| **Ceph Storage Node**       | 2U, 256GB RAM, 12x 12TB HDD, 2x 1TB NVMe for DB/WAL  | 3   | $3,500–$6,000     | Ceph storage node          | [Supermicro 2U Storage Node](https://www.supermicro.com/en/products/system/2u/storage)        |
-| **Enterprise HDDs**         | 12–18TB 7200RPM drives (e.g., Seagate Exos, WD Gold) | 36+ | $200–$300 each    | High-capacity OSD drives   | [Seagate Exos X16](https://www.seagate.com/internal-hard-drives/exos/)                        |
-| **NVMe for WAL/DB**         | 1TB Gen4 NVMe (Samsung PM983/SN850X)                 | 6   | $100–$150 each    | For Ceph journal/cache     | [Samsung PM983](https://www.samsung.com/semiconductor/minisite/ssd/product/enterprise/pm983/) |
-| **ZFS NAS Node (Optional)** | 2U ZFS System, 8–12 drives (RAIDZ2/Striped Mirror)   | 1   | $2,000–$3,500     | For cold storage/snapshots | [Synology RackStation RS3617xs](https://www.synology.com/en-global/products/rs3617xs)         |
+| Item                | Description         | Qty | Unit Price (Est.) | Notes                    | Product Link                                                           |
+| ------------------- | ------------------- | --- | ----------------- | ------------------------ | ---------------------------------------------------------------------- |
+| **Enterprise HDDs** | 24TB 7200RPM drives | 23+ | $500 each         | High-capacity OSD drives | [Seagate Exos X24](https://www.seagate.com/internal-hard-drives/exos/) |
 
-### 🔹 Phase Later: Backup, Monitoring & Expansion
+### 🔹 Phase Later: Firewall, UPS
 
-| Item                        | Description                                                | Qty | Unit Price (Est.)  | Notes                       | Product Link                                                                                                                   |
-| --------------------------- | ---------------------------------------------------------- | --- | ------------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| **Proxmox Backup Server**   | 1U server, ZFS pool, 64–128GB RAM                          | 1   | $1,500–$2,500      | For daily backups           | [HPE ProLiant MicroServer Gen10 Plus](https://www.hpe.com/us/en/product-catalog/servers/proliant-servers/pip.microserver.html) |
-| **Monitoring Node**         | 1U/Mini Server (Grafana, Prometheus, Loki, node_exporter)  | 1   | $300–$800          | Infrastructure monitoring   | [ASUS PN50 Mini PC](https://www.asus.com/us/Mini-PCs/ASUS-PN50/)                                                               |
-| **Expansion Compute Nodes** | Additional Proxmox VE nodes (similar to Phase 1 base node) | 2–4 | $1,800–$2,200 each | For scaling out the cluster | [Supermicro 1U Server](https://www.supermicro.com/en/products/system/1u)                                                       |
-| **External Backup (NAS)**   | Synology/QNAP NAS or JBOD for cold storage                 | 1   | $500–$2,000        | For offsite/cold backup     | [Synology DiskStation DS920+](https://www.synology.com/en-global/products/DS920+)                                              |
+| Item                           | Description               | Qty | Unit Price (Est.) | Notes                     | Product Link                                                   |
+| ------------------------------ | ------------------------- | --- | ----------------- | ------------------------- | -------------------------------------------------------------- |
+| **pfSense/OPNsense Appliance** | 1U Mini Box with 2–4 NICs | 1   | $300–$700         | UTM firewall, VPN gateway | [Netgate SG-1100](https://www.netgate.com/appliances/sg-1100/) |
+| **UPS**                        | 1500VA+ Smart UPS         | 1   | $300–$600         | Power backup              | [APC Smart-UPS 1500VA]()                                       |
 
 ## 3. Summary Budget
 
-| Purpose                             | Estimated Cost Range |
-| ----------------------------------- | -------------------- |
-| Start HomeLab                       | $4000                |
-| NAS Storage                         | $6000                |
-| Server Infras                       | $2500                |
-| Backup, Monitoring & Expansion      | $8,000               |
-| Storage Cluster / Data Lake         | $25,000+             |
-| GPU Compute & High-Speed Networking | $50,000+             |
+| Purpose                     | Estimated Cost Range |
+| --------------------------- | -------------------- |
+| Start HomeLab               | $4000                |
+| NAS Storage                 | $2000                |
+| Server Infras               | $1500                |
+| High-Speed Networking       | $500                 |
+| FireWall, UPS               | $1000                |
+| Storage Cluster / Data Lake | $11500+              |
 
 ## ☀️ Solar Power Plan for 42U Rack Homelab
 
 This plan outlines the solar and battery requirements to run a full-blown Proxmox-based 42U rack homelab on renewable energy.
 
-### ⚙️ System Load & Configuration
+### ⚙️ System Load & Configuration ( Hypothetical Data Center with Renewable Energy)
 
 | Item                        | Value       |
 | --------------------------- | ----------- |
