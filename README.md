@@ -34,9 +34,13 @@ More information can be found in [the roadmap](#roadmap) below.
 
 ## Hardware
 
-<img src="./assets/HomeServer.jpg" alt="HomeServer" width="300" style="max-width:300px;display:block">
-<img src="https://assets.raspberrypi.com/static/8f6eca535dbb23a21eb41a748050e3a0/f7ad0/16gb.webp" alt="Raspberry Pi 5" width="300" style="max-width:300px;display:block">
-<img src="https://www.cudy.com/cdn/shop/files/A__GS108_1464x600-2.jpg" alt="Cudy Switch" width="300" style="max-width:300px;display:block">
+### Current Setup
+
+<img src="./assets/Current HomeLab.jpeg" alt="Current HomeLab" width="600" style="max-width:600px;display:block">
+
+<img src="./assets/HomeServer.jpg" alt="HomeServer" width="600" style="max-width:600px;display:block">
+<img src="https://assets.raspberrypi.com/static/8f6eca535dbb23a21eb41a748050e3a0/f7ad0/16gb.webp" alt="Raspberry Pi 5" width="600" style="max-width:600px;display:block">
+<img src="https://www.cudy.com/cdn/shop/files/A__GS108_1464x600-2.jpg" alt="Cudy Switch" width="600" style="max-width:600px;display:block">
 
 - MultiTasking Home Server (Custom Made):
   - CPU: `32 x AMD Ryzen 9 7950X 16-Core Processor (1 Socket)`
