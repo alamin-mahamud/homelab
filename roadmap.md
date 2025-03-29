@@ -91,11 +91,11 @@ The hardware is organized into four phases, allowing me to start with a minimum 
 
 ### 🔹 Phase Later: Server Infras
 
-| Item                          | Description                               | Qty | Unit Price (Est.) | Notes                   | Product Link                                                                   |
-| ----------------------------- | ----------------------------------------- | --- | ----------------- | ----------------------- | ------------------------------------------------------------------------------ |
-| **42U Rack**                  | 42U Rack                                  | 1   | $500              | Rack                    | [Toten 42U Rack](https://www.startech.com.bd/toten-el28100-42-42u-server-rack) |
-| **Management Switch (10GbE)** | 10G Cloud Gateway with 100+ UniFi device. | 1   | $400              | For management and IPMI | [UDM Pro](https://store.ui.com/us/en/products/udm-pro)                         |
-| **PDU**                       | PDU.                                      | 1   | $35               | PDU                     | [PDU](https://www.ryans.com/toten-10-port-aluminum-pdu-for-server-rack)        |
+| Item                          | Description                               | Qty | Unit Price | Notes                   | Product Link                                                                   |
+| ----------------------------- | ----------------------------------------- | --- | ---------- | ----------------------- | ------------------------------------------------------------------------------ |
+| **42U Rack**                  | 42U Rack                                  | 1   | $500       | Rack                    | [Toten 42U Rack](https://www.startech.com.bd/toten-el28100-42-42u-server-rack) |
+| **Management Switch (10GbE)** | 10G Cloud Gateway with 100+ UniFi device. | 1   | $400       | For management and IPMI | [UDM Pro](https://store.ui.com/us/en/products/udm-pro)                         |
+| **PDU**                       | PDU.                                      | 1   | $35        | PDU                     | [PDU](https://www.ryans.com/toten-10-port-aluminum-pdu-for-server-rack)        |
 
 ### 🔹 Phase Later: High-Speed Networking
 
@@ -107,7 +107,7 @@ The hardware is organized into four phases, allowing me to start with a minimum 
 
 | Item                | Description         | Qty | Unit Price (Est.) | Notes                    | Product Link                                                           |
 | ------------------- | ------------------- | --- | ----------------- | ------------------------ | ---------------------------------------------------------------------- |
-| **Enterprise HDDs** | 24TB 7200RPM drives | 23+ | $500 each         | High-capacity OSD drives | [Seagate Exos X24](https://www.seagate.com/internal-hard-drives/exos/) |
+| **Enterprise HDDs** | 24TB 7200RPM drives | TBD | $500 each         | High-capacity OSD drives | [Seagate Exos X24](https://www.seagate.com/internal-hard-drives/exos/) |
 
 ### 🔹 Phase Later: Firewall, UPS
 
@@ -125,7 +125,7 @@ The hardware is organized into four phases, allowing me to start with a minimum 
 | Server Infras               | $1500                |
 | High-Speed Networking       | $500                 |
 | FireWall, UPS               | $1000                |
-| Storage Cluster / Data Lake | $11500+              |
+| Storage Cluster / Data Lake | $TBD+                |
 
 ## ☀️ Solar Power Plan for 42U Rack Homelab
 
@@ -133,29 +133,29 @@ This plan outlines the solar and battery requirements to run a full-blown Proxmo
 
 ### ⚙️ System Load & Configuration ( Hypothetical Data Center with Renewable Energy)
 
-| Item                        | Value       |
-| --------------------------- | ----------- |
-| **Estimated Power Load**    | 10 kW       |
-| **Daily Energy Usage**      | 240 kWh/day |
-| **Solar Array Size**        | 50 kW       |
-| **Average Sunlight Hours**  | 5 hours/day |
-| **Battery Backup Capacity** | 100 kWh     |
+| Item                        | Phase-1 Value | Phase-2 Value | Phase-3 Value |
+| --------------------------- | ------------- | ------------- | ------------- |
+| **Estimated Power Load**    | 2.5 kW        | 5 kW          | 10 kW         |
+| **Daily Energy Usage**      | 60 kWh/day    | 120 kWh/day   | 240 kWh/day   |
+| **Solar Array Size**        | 12 kW         | 25 kW         | 50 kW         |
+| **Average Sunlight Hours**  | 5 hours/day   | 5 hours/day   | 5 hours/day   |
+| **Battery Backup Capacity** | 25 kWh        | 50 kWh        | 100 kWh       |
 
 ### ☀️ Solar & Battery Performance
 
-| Metric                               | Value                    |
-| ------------------------------------ | ------------------------ |
-| **Daily Solar Generation**           | 250 kWh/day              |
-| **Daily Surplus/Deficit**            | +10 kWh/day (surplus) ✅ |
-| **Overnight Load (12 hours @ 10kW)** | 120 kWh                  |
-| **Battery Coverage**                 | 83.3% of night load 🔋   |
+| Metric                        | Phase-1 Value             | Phase-2 Value           | Phase-3 Value            |
+| ----------------------------- | ------------------------- | ----------------------- | ------------------------ |
+| **Daily Solar Generation**    | 60 kWh/day                | 125 kWh/day             | 250 kWh/day              |
+| **Daily Surplus/Deficit**     | +2.5 kWh/day (surplus) ✅ | +5 kWh/day (surplus) ✅ | +10 kWh/day (surplus) ✅ |
+| **Overnight Load (12 hours)** | 30 kWh                    | 60 kWh                  | 120 kWh                  |
+| **Battery Coverage**          | 83.3% of night load 🔋    | 83.3% of night load 🔋  | 83.3% of night load 🔋   |
 
 ### 💰 Financial Impact (🇧🇩 Bangladesh)
 
-| Metric                       | Value                |
-| ---------------------------- | -------------------- |
-| **Electricity Cost**         | ৳10 per kWh (est.)   |
-| **Annual Energy Usage**      | 87,600 kWh           |
-| **Annual Savings**           | **৳876,000/year** 💸 |
-| **Estimated System Cost**    | ~**৳10,000,000**     |
-| **Estimated Payback Period** | **~11 years** 🕒     |
+| Metric                       | Phase-1 Value        | Phase-2 Value        | Phase-3 Value        |
+| ---------------------------- | -------------------- | -------------------- | -------------------- |
+| **Electricity Cost**         | ৳10 per kWh (est.)   | ৳10 per kWh (est.)   | ৳10 per kWh (est.)   |
+| **Annual Energy Usage**      | 22,000 kWh           | 45,000 kWh           | 87,600 kWh           |
+| **Annual Savings**           | **৳220,000/year** 💸 | **৳450,000/year** 💸 | **৳876,000/year** 💸 |
+| **Estimated System Cost**    | ~**৳2,500,000**      | ~**৳5,000,000**      | ~**৳10,000,000**     |
+| **Estimated Payback Period** | **~11 years** 🕒     | **~11 years** 🕒     | **~11 years** 🕒     |
