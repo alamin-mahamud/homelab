@@ -115,6 +115,11 @@ More information can be found in [the roadmap](#roadmap) below.
         <td><a href="https://kubernetes.io">Kubernetes</a></td>
         <td>Container-orchestration system, the backbone of this project</td>
     </tr>
+    <tr>
+        <td><img width="32" src="https://simpleicons.org/icons/github.svg"></td>
+        <td><a href="https://github.com">GitHub Self Hosted Runner</a></td>
+        <td>Simple yet powerful CI/CD engine with great extensibility</td>
+    </tr>
     <!-- <tr>
         <td><img width="32" src="https://avatars.githubusercontent.com/u/30269780"></td>
         <td><a href="https://argoproj.github.io/cd">ArgoCD</a></td>
@@ -224,11 +229,7 @@ More information can be found in [the roadmap](#roadmap) below.
         <td><a href="https://www.wireguard.com">Wireguard</a></td>
         <td>Fast, modern, secure VPN tunnel</td>
     </tr> -->
-    <!-- <tr>
-        <td><img width="32" src="https://avatars.githubusercontent.com/u/84780935?s=200&v=4"></td>
-        <td><a href="https://woodpecker-ci.org">Woodpecker CI</a></td>
-        <td>Simple yet powerful CI/CD engine with great extensibility</td>
-    </tr>
+    <!--
     <tr>
         <td><img width="32" src="https://zotregistry.dev/v2.0.2/assets/images/logo.svg"></td>
         <td><a href="https://zotregistry.dev">Zot Registry</a></td>
