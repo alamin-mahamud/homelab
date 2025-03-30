@@ -26,22 +26,14 @@ This document outlines your journey to build a robust Home Lab—from foundation
 
 ### Kubernetes Mastery & Container Orchestration
 
-- **Cluster Setup**
-  - [ ] Build a High Availability Kubernetes cluster (using Kubeadm or K3s).
-- **Persistent Storage**
-  - [ ] Implement on-prem persistent storage solutions using Longhorn or Ceph.
-- **Ingress & Load Balancing**
-  - [ ] Deploy production-grade ingress using MetalLB and Nginx.
-- **Security & Policies**
-  - [ ] Configure RBAC, Pod Security Policies, and Network Policies.
-- **Monitoring & Logging**
-  - [ ] Set up advanced monitoring with Prometheus, Grafana, and Loki.
-- **Resilience & Scalability**
-  - [ ] Implement Kubernetes auto-scaling and self-healing mechanisms.
-  - [ ] Develop Disaster Recovery (DR) and backup strategies.
-- **Service Mesh & Multi-Tenancy**
-  - [ ] Integrate a service mesh with Istio or Linkerd.
-  - [ ] Explore multi-tenancy via virtual clusters.
+- [x] **Cluster Setup** - Build a High Availability Kubernetes cluster (using Kubeadm or K3s).
+- [ ] **Persistent Storage** - Implement on-prem persistent storage solutions using Longhorn or Ceph.
+- [ ] **Ingress & Load Balancing** - Deploy production-grade ingress using MetalLB and Nginx.
+- [ ] **Security & Policies** - Configure RBAC, Pod Security Policies, and Network Policies.
+- [ ] **Monitoring & Logging** - Set up advanced monitoring with Prometheus, Grafana, and Loki.
+- [ ] **Resilience & Scalability** - Implement Kubernetes auto-scaling, self-healing mechanisms with DR.
+- [ ] **Service Mesh** - Integrate a service mesh with Istio or Linkerd.
+- [ ] **Multi-Tenancy** - Explore multi-tenancy via virtual clusters.
 - **Application Deployments**
   - [ ] Deploy stateful services: Kafka, Redis, PostgreSQL, or MongoDB.
   - [ ] Experiment with AI/ML workloads using NVIDIA GPU passthrough.
