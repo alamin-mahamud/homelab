@@ -120,6 +120,11 @@ More information can be found in [the roadmap](#roadmap) below.
         <td><a href="https://github.com">GitHub Self Hosted Runner</a></td>
         <td>Simple yet powerful CI/CD engine with great extensibility</td>
     </tr>
+    <tr>
+        <td><img width="32" src="https://longhorn.io/img/logos/longhorn-icon-black.png"></td>
+        <td><a href="https://longhorn.io">Longhorn</a></td>
+        <td>Cloud-Native Block Storage for Kubernetes</td>
+    </tr>
     <!-- <tr>
         <td><img width="32" src="https://avatars.githubusercontent.com/u/30269780"></td>
         <td><a href="https://argoproj.github.io/cd">ArgoCD</a></td>
