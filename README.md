@@ -236,7 +236,6 @@ More information can be found in [the roadmap](#roadmap) below.
         <td><a href="https://zotregistry.dev">Zot Registry</a></td>
         <td>Private container registry</td>
     </tr> -->
-
 </table>
 
 ## Get Started
