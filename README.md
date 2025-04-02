@@ -130,12 +130,13 @@ More information can be found in [the roadmap](#roadmap) below.
         <td><a href="https://helm.sh">Helm</a></td>
         <td>The package manager for Kubernetes</td>
     </tr>
-    <!-- <tr>
+    <!--
+    <tr>
         <td><img width="32" src="https://avatars.githubusercontent.com/u/30269780"></td>
         <td><a href="https://argoproj.github.io/cd">ArgoCD</a></td>
         <td>GitOps tool built to deploy applications to Kubernetes</td>
-    </tr> -->
-    <!-- <tr>
+    </tr>
+    <tr>
         <td><img width="32" src="https://github.com/jetstack/cert-manager/raw/master/logo/logo.png"></td>
         <td><a href="https://cert-manager.io">cert-manager</a></td>
         <td>Cloud native certificate management</td>
@@ -170,14 +171,11 @@ More information can be found in [the roadmap](#roadmap) below.
         <td><a href="https://gitea.com">Gitea</a></td>
         <td>Self-hosted Git service</td>
     </tr>
--->
-    <!-- <tr>
+    <tr>
         <td><img width="32" src="https://grafana.com/static/img/menu/grafana2.svg"></td>
         <td><a href="https://grafana.com">Grafana</a></td>
         <td>Observability platform</td>
     </tr>
-     -->
-<!--
     <tr>
         <td><img width="32" src="https://avatars.githubusercontent.com/u/49319725"></td>
         <td><a href="https://k3s.io">K3s</a></td>
@@ -188,8 +186,6 @@ More information can be found in [the roadmap](#roadmap) below.
         <td><a href="https://kanidm.com">Kanidm</a></td>
         <td>Modern and simple identity management platform</td>
     </tr>
--->
-<!--
     <tr>
         <td><img width="32" src="https://github.com/grafana/loki/blob/main/docs/sources/logo.png?raw=true"></td>
         <td><a href="https://grafana.com/oss/loki">Loki</a></td>
@@ -219,8 +215,8 @@ More information can be found in [the roadmap](#roadmap) below.
         <td><img width="32" src="https://docs.renovatebot.com/assets/images/logo.png"></td>
         <td><a href="https://www.whitesourcesoftware.com/free-developer-tools/renovate">Renovate</a></td>
         <td>Automatically update dependencies</td>
-    </tr> -->
-    <!-- <tr>
+    </tr>
+    <tr>
         <td><img width="32" src="https://raw.githubusercontent.com/rook/artwork/master/logo/blue.svg"></td>
         <td><a href="https://rook.io">Rook Ceph</a></td>
         <td>Cloud-Native Storage for Kubernetes</td>
@@ -234,8 +230,7 @@ More information can be found in [the roadmap](#roadmap) below.
         <td><img width="32" src="https://avatars.githubusercontent.com/u/13991055?s=200&v=4"></td>
         <td><a href="https://www.wireguard.com">Wireguard</a></td>
         <td>Fast, modern, secure VPN tunnel</td>
-    </tr> -->
-    <!--
+    </tr>
     <tr>
         <td><img width="32" src="https://zotregistry.dev/v2.0.2/assets/images/logo.svg"></td>
         <td><a href="https://zotregistry.dev">Zot Registry</a></td>
