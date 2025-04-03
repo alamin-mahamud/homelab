@@ -264,6 +264,7 @@ See [license page](./LICENSE.md) for more information.
 
 References:
 
+- [Jeff CTO - HomeLab](https://www.youtube.com/@jeffsponaugle6339)
 - [Homelab - Khue Doan](https://homelab.khuedoan.com/)
 
 Here is a list of the contributors who have helped to improve this project.
