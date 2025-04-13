@@ -1,0 +1,10 @@
+- hosts: etcd
+  strategy: linear
+  become: true
+  vars:
+    etcd_version: "v3.5.21"
+    etcd_cluster_name: "k8s-etcd"
+    etcd_client_port: 2379
+    etcd_peer_port: 2380
+  roles:
+    - etcd
