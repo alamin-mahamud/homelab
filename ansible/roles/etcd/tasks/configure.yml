@@ -1,0 +1,16 @@
+- name: create etcd config directory
+  file:
+    path: /etc/etcd
+    state: directory
+    mode: 0755
+
+- name: Create etcd config
+  template:
+    src: etcd.conf.yml.j2
+    dest: /etc/etcd/etcd.conf.yml
+
+- name: Copy systemd unit file
+  copy:
+    src: etcd.service
+    dest: /etc/systemd/system/etcd.service
+  notify: restart etcd

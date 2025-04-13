@@ -1,0 +1,4 @@
+debug_mode: false
+etcd_version: "v3.5.21"
+etcd_download_url: "https://github.com/etcd-io/etcd/releases/download"
+etcd_bin_path: "/usr/local/bin"

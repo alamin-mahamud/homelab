@@ -1,0 +1,11 @@
+name: {{ inventory_hostname }}
+data-dir: /var/lib/etcd
+listen-peer-urls: http://{{ ansible_host }}:{{ etcd_peer_port }}
+listen-client-urls: http://{{ ansible_host }}:{{ etcd_client_port }},http://127.0.0.1:{{ etcd_client_port }}
+initial-advertise-peer-urls: http://{{ ansible_host }}:{{ etcd_peer_port }}
+advertise-client-urls: http://{{ ansible_host }}:{{ etcd_client_port }}
+initial-cluster: {% for host in groups['etcd'] -%}
+{{ host }}=http://{{ hostvars[host].ansible_host }}:{{ etcd_peer_port }}{% if not loop.last %},{% endif %}
+{%- endfor %}
+initial-cluster-state: new
+initial-cluster-token: etcd-cluster

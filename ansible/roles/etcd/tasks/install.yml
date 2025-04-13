@@ -1,0 +1,29 @@
+- name: Download etcd
+  get_url:
+    url: "{{ etcd_download_url }}/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-amd64.tar.gz"
+    dest: "/tmp/etcd.tar.gz"
+
+- name: Extract etcd
+  unarchive:
+    src: "/tmp/etcd.tar.gz"
+    dest: "/tmp/"
+    remote_src: yes
+
+- name: "[DEBUG] Check if etcd binary path exists"
+  stat:
+    path: "/tmp/etcd-{{ etcd_version }}-linux-amd64/etcd"
+  register: etcd_binary_stat
+  when: debug_mode
+
+- name: "[DEBUG] Print etcd binary stat info"
+  debug:
+    var: etcd_binary_stat
+  when: debug_mode
+
+- name: Copy binaries
+  copy:
+    src: "/tmp/etcd-{{ etcd_version }}-linux-amd64/etcd"
+    dest: "{{ etcd_bin_path }}/etcd"
+    mode: 0755
+    remote_src: yes
+  notify: restart etcd
