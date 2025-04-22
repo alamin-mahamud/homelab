@@ -106,3 +106,15 @@ network:
 ```
 
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+
+## Error
+
+```
+Error from server (InternalError): error when creating "ip-address-pool.yaml": Internal error occurred: failed calling webhook "ipaddresspoolvalidationwebhook.metallb.io": failed to call webhook: Post "https://metallb-webhook-service.metallb-system.svc:443/validate-metallb-io-v1beta1-ipaddresspool?timeout=10s": dial tcp 10.96.29.16:443: connect: no route to host
+```
+
+- check the metallb pods and services
+
+```
+kubectl get pods,svc -n metallb-system
+```
