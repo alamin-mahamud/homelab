@@ -1,0 +1,17 @@
+[Unit]
+Description=Prometheus Service
+After=network.target
+Documentation=https://prometheus.io/docs/introduction/overview/
+
+
+[Service]
+User=nobody
+Group=nobody
+Restart=on-failure
+ExecStart=/bin/prometheus \
+  --config.file=/etc/prometheus/prometheus.yml \
+  --storage.tsdb.path=/prometheus \
+  --storage.tsdb.retetion.time=30d
+
+[Install]
+WantedBy=multi-user.target
