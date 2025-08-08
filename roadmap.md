@@ -1,153 +1,170 @@
-# Homelab Roadmap & Hardware Purchase Plan
+# Homelab Roadmap & Hardware Evolution Plan
 
-This document outlines your journey to build a robust Home Lab—from foundational infrastructure through advanced orchestration and AI/ML workloads—and organizes the necessary hardware into phases. It also includes sample product links for reference.
+This document outlines the journey to build a production-grade homelab, from initial setup through advanced orchestration and AI/ML workloads, with a phased hardware acquisition strategy.
 
-## 1. Homelab Roadmap
+## 📋 Homelab Development Roadmap
 
-### Foundation & Infrastructure Setup
+### Phase 1: Foundation & Infrastructure ✅
 
-- **Initial Equipment Integration**
-  - [x] Utilize existing desktops and Raspberry Pi clusters.
-  - [x] Organize basic network gear: router, switches, patch cords.
-- **Networking & Security**
-  - [x] Configure VLANs and secure remote access channels.
-- **Storage**
-  - [ ] Deploy TrueNAS for centralized storage management.
+#### Completed
+- [x] **Initial Equipment Integration** - Existing desktop and Raspberry Pi cluster setup
+- [x] **Basic Networking** - Router, switches, and patch cord organization
+- [x] **VLAN Configuration** - Network segmentation and security
 
-### Proxmox Mastery & Virtualization
+#### In Progress
+- [ ] **Centralized Storage** - TrueNAS deployment for unified storage management
+- [ ] **Documentation** - Comprehensive setup guides and runbooks
 
-- **Proxmox Cluster**
-  - [x] Build a multi-node Proxmox cluster with High Availability (HA) for VM failover.
-- **Networking**
-  - [x] Configure Proxmox networking and VLANs to support container and VM workloads.
-- **Virtualized Environments**
-  - [ ] Set up Ubuntu Desktop on Proxmox with GPU support.
-  - [ ] Secure the lab with SSL certificates.
+### Phase 2: Virtualization & Container Platform 🚧
 
-### Kubernetes Mastery & Container Orchestration
+#### Proxmox Infrastructure
+- [x] **Multi-Node Cluster** - High Availability (HA) Proxmox cluster with VM failover
+- [x] **Network Configuration** - VLANs and SDN for container/VM workloads
+- [ ] **GPU Passthrough** - Ubuntu Desktop VMs with GPU acceleration
+- [ ] **SSL/TLS Security** - Certificate management and secure access
 
-- [x] **Cluster Setup** - Build a High Availability Kubernetes cluster (using Kubeadm or K3s).
-- [ ] **Persistent Storage** - Implement on-prem persistent storage solutions using Longhorn or Ceph.
-- [ ] **Ingress & Load Balancing** - Deploy production-grade ingress using MetalLB and Nginx.
-- [ ] **Security & Policies** - Configure RBAC, Pod Security Policies, and Network Policies.
-- [ ] **Monitoring & Logging** - Set up advanced monitoring with Prometheus, Grafana, and Loki.
-- [ ] **Resilience & Scalability** - Implement Kubernetes auto-scaling, self-healing mechanisms with DR.
-- [ ] **Service Mesh** - Integrate a service mesh with Istio or Linkerd.
-- [ ] **Multi-Tenancy** - Explore multi-tenancy via virtual clusters.
-- **Application Deployments**
-  - [ ] Deploy stateful services: Kafka, Redis, PostgreSQL, or MongoDB.
-  - [ ] Experiment with AI/ML workloads using NVIDIA GPU passthrough.
-- **Container Registry & CI/CD**
-  - [ ] Deploy Harbor as a private Docker registry.
-  - [ ] Implement a GitOps workflow with Argo CD and a CI/CD pipeline using Jenkins.
-- **Infrastructure as Code**
-  - [ ] Utilize Terraform for provisioning and Ansible for configuration management.
+#### Kubernetes Platform
+- [x] **HA Cluster Setup** - Production-grade Kubernetes cluster (Kubeadm/K3s)
+- [ ] **Storage Solutions** - Persistent volumes with Longhorn/Ceph
+- [ ] **Load Balancing** - MetalLB and Nginx Ingress controllers
+- [ ] **Security Hardening** - RBAC, Pod Security Standards, Network Policies
+- [ ] **Observability Stack** - Prometheus, Grafana, Loki, and distributed tracing
 
-### AI/ML Workloads
+### Phase 3: Advanced Services & Automation 🎯
 
-- _(Work in Progress as hardware scales)_
+#### Container Ecosystem
+- [ ] **Service Mesh** - Istio/Linkerd for microservices communication
+- [ ] **Multi-Tenancy** - Virtual clusters and namespace isolation
+- [ ] **Stateful Services** - Production databases (PostgreSQL, MongoDB, Redis)
+- [ ] **Message Queuing** - Kafka for event streaming
+- [ ] **Container Registry** - Harbor for private image management
 
-## 2. Hardware Purchase Plan – 42U Proxmox HomeLab
+#### CI/CD & GitOps
+- [ ] **GitOps Workflow** - ArgoCD for declarative deployments
+- [ ] **CI/CD Pipeline** - Jenkins/GitHub Actions integration
+- [ ] **Infrastructure as Code** - Terraform provisioning, Ansible configuration
 
-### 42U Rack Server ( WIP )
+#### Advanced Capabilities
+- [ ] **Auto-Scaling** - HPA/VPA and cluster autoscaling
+- [ ] **Disaster Recovery** - Backup strategies and failover procedures
+- [ ] **AI/ML Workloads** - GPU-accelerated training and inference
 
-| U   | Device / Function                                                                   | Description                                                |
-| --- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| 1U  | Cable Management Arm                                                                | Top-side cable routing                                     |
-| 1U  | [Top-of-Rack 10GbE Switch](https://store.ui.com/us/en/products/udm-pro)             | Management & IPMI Network                                  |
-| 1U  | [Patch Panel](https://www.startech.com.bd/rosenberger-1u-metal-cable-manager-panel) | Network cabling and cross-connect                          |
-| 18U | Compute Node(s)                                                                     | Proxmox VE, 16C 32T, 128GB Non-ECC RAM, 1x 2TB NVMe, 1 GPU |
-| 14U | Ceph Storage Node(s)                                                                | 12-bay + 2x NVMe for WAL/DB - 256GB RAM                    |
-| 1U  | KVM-over-IP / Console Server                                                        | Remote BIOS/Boot access for all nodes                      |
-| 4U  | UPS #1 (Battery Backup)                                                             | Clean shutdown for critical systems                        |
-| 1U  | 1U Utility Drawer (Optional)                                                        | USBs, tools, SSDs, network testers                         |
-| 1U  | PDU A (Smart or Metered)                                                            | For even power distribution                                |
+## 🖥️ Hardware Architecture Plan
 
-The hardware is organized into four phases, allowing me to start with a minimum setup and scale up as my lab evolves.
+### Current Setup (Phase 0) ✅
 
-### 🔹 Phase 0: Start Homelab
+| Component | Specification | Status |
+|-----------|--------------|--------|
+| **Primary Server** | AMD Ryzen 9 7950X, 128GB DDR5, 2TB NVMe, RTX 4080 SUPER | ✅ Operational |
+| **Secondary Node** | Raspberry Pi 5, 8GB RAM, 64GB Storage | ✅ Operational |
+| **Networking** | Cudy GS108 8-Port Gigabit Switch | ✅ Operational |
+| **Router** | TP-Link AX6600 Wi-Fi 6 | ✅ Operational |
 
-| Item               | Description                                                 | Qty | Unit Price (Est.) | Notes                        | Purchased |
-| ------------------ | ----------------------------------------------------------- | --- | ----------------- | ---------------------------- | --------- |
-| **Home Server**    | 2U Server, AMD Ryzen, 128GB Non-ECC RAM, 1x 2TB NVMe, 1 GPU | 1   | $3,500            | General Purpose Home Server  | √         |
-| **Raspberry Pi 5** | 4 CPU, 8GB RAM, 64GB                                        | 1   | $200              | Small, Lightweight workloads | √         |
-| **Desktop Switch** | 8 Port Gigabit Switch - Unmanaged                           | 1   | $15               | Unmanaged Switch             | √         |
-| **TP-Link Router** | AX6600 Tri-Band Gigabit Wi-Fi 6 Router                      | 1   | $200              | Wifi 6 + LAN                 | √         |
+### 42U Rack Layout (Future State)
 
-### 🔹 Phase Next: NAS Storage
+| U Position | Component | Purpose |
+|------------|-----------|---------|
+| **U42-41** | Cable Management | Top-of-rack cable organization |
+| **U40** | 10GbE Switch | Core networking and IPMI |
+| **U39** | Patch Panel | Network termination points |
+| **U38-21** | Compute Nodes (18U) | Proxmox VE cluster nodes |
+| **U20-7** | Storage Nodes (14U) | Ceph/TrueNAS storage cluster |
+| **U6** | KVM Console | Remote management |
+| **U5-2** | UPS System (4U) | Power protection |
+| **U1** | PDU | Power distribution |
 
-| Item                  | Description                    | Qty | Unit Price (Est.) | Notes         | Purchased / Link                                          |
-| --------------------- | ------------------------------ | --- | ----------------- | ------------- | --------------------------------------------------------- |
-| **NAS Server**        | 2U Server, 20TB HDD            | 1   | $2,000            | NAS           | [192 TB NAS](https://www.youtube.com/watch?v=nKeENirsiTs) |
-| **CloudFlare Access** | Secure Access to your Services | 1   | $5 per Month      | Secure Access |                                                           |
+## 💰 Investment Phases
 
-### 🔹 Phase Later: Server Infras
+### Phase 1: Storage Expansion ($2,000-3,000)
 
-| Item                          | Description                               | Qty | Unit Price | Notes                   | Product Link                                                                   |
-| ----------------------------- | ----------------------------------------- | --- | ---------- | ----------------------- | ------------------------------------------------------------------------------ |
-| **42U Rack**                  | 42U Rack                                  | 1   | $500       | Rack                    | [Toten 42U Rack](https://www.startech.com.bd/toten-el28100-42-42u-server-rack) |
-| **Management Switch (10GbE)** | 10G Cloud Gateway with 100+ UniFi device. | 1   | $400       | For management and IPMI | [UDM Pro](https://store.ui.com/us/en/products/udm-pro)                         |
-| **PDU**                       | PDU.                                      | 1   | $35        | PDU                     | [PDU](https://www.ryans.com/toten-10-port-aluminum-pdu-for-server-rack)        |
+| Item | Specification | Budget | Priority |
+|------|--------------|--------|----------|
+| **NAS Server** | 2U chassis, 20-40TB usable | $2,000 | High |
+| **Cloud Access** | Cloudflare Zero Trust | $5/month | High |
+| **Backup Solution** | Off-site backup storage | $500 | Medium |
 
-### 🔹 Phase Later: High-Speed Networking
+### Phase 2: Infrastructure Build ($3,000-5,000)
 
-| Item                | Description                   | Qty | Unit Price (Est.) | Notes                       | Product Link                                                                       |
-| ------------------- | ----------------------------- | --- | ----------------- | --------------------------- | ---------------------------------------------------------------------------------- |
-| **High-Speed NICs** | Dual-port 25/100GbE RDMA NICs | 1   | $500              | For compute & storage nodes | [Mellanox ConnectX-5](https://www.mellanox.com/products/network-adapters/ethernet) |
+| Item | Specification | Budget | Priority |
+|------|--------------|--------|----------|
+| **42U Rack** | Server cabinet with cooling | $500 | High |
+| **Management Switch** | UniFi Dream Machine Pro | $400 | High |
+| **PDU** | Metered/Smart PDU | $200 | High |
+| **Additional Compute** | 2U server for cluster | $2,000 | Medium |
+| **10GbE Networking** | NICs and switching | $1,000 | Medium |
 
-### 🔹 Phase Later: Storage Cluster / Data Lake
+### Phase 3: Enterprise Features ($5,000+)
 
-| Item                | Description         | Qty | Unit Price (Est.) | Notes                    | Product Link                                                           |
-| ------------------- | ------------------- | --- | ----------------- | ------------------------ | ---------------------------------------------------------------------- |
-| **Enterprise HDDs** | 24TB 7200RPM drives | TBD | $500 each         | High-capacity OSD drives | [Seagate Exos X24](https://www.seagate.com/internal-hard-drives/exos/) |
+| Item | Specification | Budget | Priority |
+|------|--------------|--------|----------|
+| **High-Speed NICs** | 25/100GbE RDMA | $500/card | Low |
+| **Enterprise Storage** | 24TB HDDs for Ceph | $500/drive | Medium |
+| **Firewall Appliance** | pfSense/OPNsense | $500 | Medium |
+| **UPS Upgrade** | 1500VA+ Smart UPS | $600 | High |
 
-### 🔹 Phase Later: Firewall, UPS
+## 🌞 Renewable Energy Considerations
 
-| Item                           | Description               | Qty | Unit Price (Est.) | Notes                     | Product Link                                                   |
-| ------------------------------ | ------------------------- | --- | ----------------- | ------------------------- | -------------------------------------------------------------- |
-| **pfSense/OPNsense Appliance** | 1U Mini Box with 2–4 NICs | 1   | $300–$700         | UTM firewall, VPN gateway | [Netgate SG-1100](https://www.netgate.com/appliances/sg-1100/) |
-| **UPS**                        | 1500VA+ Smart UPS         | 1   | $300–$600         | Power backup              | [APC Smart-UPS 1500VA]()                                       |
+### Power Requirements Analysis
 
-## 3. Summary Budget
+| Metric | Current | Phase 2 | Full Build |
+|--------|---------|---------|------------|
+| **Average Load** | 0.5 kW | 2.5 kW | 5 kW |
+| **Daily Consumption** | 12 kWh | 60 kWh | 120 kWh |
+| **Monthly Cost** | $40 | $200 | $400 |
 
-| Purpose                     | Estimated Cost Range |
-| --------------------------- | -------------------- |
-| Start HomeLab               | $4000                |
-| NAS Storage                 | $2000                |
-| Server Infras               | $1500                |
-| High-Speed Networking       | $500                 |
-| FireWall, UPS               | $1000                |
-| Storage Cluster / Data Lake | $TBD+                |
+### Solar System Sizing (Optional Future)
 
-## ☀️ Solar Power Plan for 42U Rack Homelab
+| Component | Specification | Notes |
+|-----------|--------------|-------|
+| **Solar Array** | 12-25 kW | 5 hours average sun |
+| **Battery Bank** | 25-50 kWh | 12-hour autonomy |
+| **Inverter** | 5-10 kW | Grid-tie with backup |
+| **ROI Period** | 8-12 years | Location dependent |
 
-This plan outlines the solar and battery requirements to run a full-blown Proxmox-based 42U rack homelab on renewable energy.
+## 📊 Success Metrics
 
-### ⚙️ System Load & Configuration ( Hypothetical Data Center with Renewable Energy)
+### Technical Goals
+- 99.9% uptime for critical services
+- < 10ms latency for local services
+- Automated disaster recovery < 1 hour RTO
+- Zero-downtime deployments
 
-| Item                        | Phase-1 Value | Phase-2 Value | Phase-3 Value |
-| --------------------------- | ------------- | ------------- | ------------- |
-| **Estimated Power Load**    | 2.5 kW        | 5 kW          | 10 kW         |
-| **Daily Energy Usage**      | 60 kWh/day    | 120 kWh/day   | 240 kWh/day   |
-| **Solar Array Size**        | 12 kW         | 25 kW         | 50 kW         |
-| **Average Sunlight Hours**  | 5 hours/day   | 5 hours/day   | 5 hours/day   |
-| **Battery Backup Capacity** | 25 kWh        | 50 kWh        | 100 kWh       |
+### Learning Objectives
+- Master Kubernetes CKA/CKS certification topics
+- Implement production-grade monitoring
+- Build CI/CD best practices
+- Develop Infrastructure as Code expertise
 
-### ☀️ Solar & Battery Performance
+## 🚀 Next Steps
 
-| Metric                        | Phase-1 Value             | Phase-2 Value           | Phase-3 Value            |
-| ----------------------------- | ------------------------- | ----------------------- | ------------------------ |
-| **Daily Solar Generation**    | 60 kWh/day                | 125 kWh/day             | 250 kWh/day              |
-| **Daily Surplus/Deficit**     | +2.5 kWh/day (surplus) ✅ | +5 kWh/day (surplus) ✅ | +10 kWh/day (surplus) ✅ |
-| **Overnight Load (12 hours)** | 30 kWh                    | 60 kWh                  | 120 kWh                  |
-| **Battery Coverage**          | 83.3% of night load 🔋    | 83.3% of night load 🔋  | 83.3% of night load 🔋   |
+1. **Immediate** (This Month)
+   - Complete TrueNAS deployment
+   - Document current setup thoroughly
+   - Plan storage expansion
 
-### 💰 Financial Impact (🇧🇩 Bangladesh)
+2. **Short Term** (3 Months)
+   - Implement full monitoring stack
+   - Deploy GitOps workflow
+   - Add backup solutions
 
-| Metric                       | Phase-1 Value        | Phase-2 Value        | Phase-3 Value        |
-| ---------------------------- | -------------------- | -------------------- | -------------------- |
-| **Electricity Cost**         | ৳10 per kWh (est.)   | ৳10 per kWh (est.)   | ৳10 per kWh (est.)   |
-| **Annual Energy Usage**      | 22,000 kWh           | 45,000 kWh           | 87,600 kWh           |
-| **Annual Savings**           | **৳220,000/year** 💸 | **৳450,000/year** 💸 | **৳876,000/year** 💸 |
-| **Estimated System Cost**    | ~**৳2,500,000**      | ~**৳5,000,000**      | ~**৳10,000,000**     |
-| **Estimated Payback Period** | **~11 years** 🕒     | **~11 years** 🕒     | **~11 years** 🕒     |
+3. **Medium Term** (6 Months)
+   - Acquire rack and infrastructure
+   - Expand compute cluster
+   - Implement service mesh
+
+4. **Long Term** (12+ Months)
+   - AI/ML workload platform
+   - Multi-site replication
+   - Renewable energy integration
+
+## 📚 Resources & References
+
+- [Proxmox VE Documentation](https://pve.proxmox.com/wiki/Main_Page)
+- [Kubernetes Production Best Practices](https://kubernetes.io/docs/setup/production-environment/)
+- [CNCF Cloud Native Landscape](https://landscape.cncf.io/)
+- [r/homelab Community](https://reddit.com/r/homelab)
+
+---
+
+*Last Updated: January 2025*  
+*Review Cycle: Quarterly*

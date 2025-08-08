@@ -1,120 +1,248 @@
-# Configuring K8S
+# Kubernetes Configuration Guide
 
-`sudo kubeadm init --control-plane-endpoint=10.10.10.1 --node-name controller --pod-network-cidr=10.244.0.0/16`
+This guide covers the setup and configuration of a Kubernetes cluster in the homelab environment.
 
+## Prerequisites
+
+- Ubuntu Server 22.04 LTS or later
+- Minimum 2 CPU cores
+- Minimum 2GB RAM
+- Network connectivity between nodes
+- Swap disabled on all nodes
+
+## Initial Setup
+
+### 1. Initialize the Control Plane
+
+Initialize the first master node with the following command:
+
+```bash
+sudo kubeadm init \
+  --control-plane-endpoint=10.10.10.1 \
+  --node-name controller \
+  --pod-network-cidr=10.244.0.0/16
 ```
-[init] Using Kubernetes version: v1.32.3
-[preflight] Running pre-flight checks
-[WARNING Hostname]: hostname "controller" could not be reached
-[WARNING Hostname]: hostname "controller": lookup controller on 127.0.0.53:53: server misbehaving
-[preflight] Pulling images required for setting up a Kubernetes cluster
-[preflight] This might take a minute or two, depending on the speed of your internet connection
-[preflight] You can also perform this action beforehand using 'kubeadm config images pull'
-W0313 19:12:29.125148 1107 checks.go:846] detected that the sandbox image "registry.k8s.io/pause:3.8" of the container runtime is inconsistent with that used by kubeadm.It is recommended to use "registry.k8s.io/pause:3.10" as the CRI sandbox image.
-[certs] Using certificateDir folder "/etc/kubernetes/pki"
-[certs] Generating "ca" certificate and key
-[certs] Generating "apiserver" certificate and key
-[certs] apiserver serving cert is signed for DNS names [controller kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local] and IPs [10.96.0.1 10.10.10.1]
-[certs] Generating "apiserver-kubelet-client" certificate and key
-[certs] Generating "front-proxy-ca" certificate and key
-[certs] Generating "front-proxy-client" certificate and key
-[certs] Generating "etcd/ca" certificate and key
-[certs] Generating "etcd/server" certificate and key
-[certs] etcd/server serving cert is signed for DNS names [controller localhost] and IPs [10.10.10.1 127.0.0.1 ::1]
-[certs] Generating "etcd/peer" certificate and key
-[certs] etcd/peer serving cert is signed for DNS names [controller localhost] and IPs [10.10.10.1 127.0.0.1 ::1]
-[certs] Generating "etcd/healthcheck-client" certificate and key
-[certs] Generating "apiserver-etcd-client" certificate and key
-[certs] Generating "sa" key and public key
-[kubeconfig] Using kubeconfig folder "/etc/kubernetes"
-[kubeconfig] Writing "admin.conf" kubeconfig file
-[kubeconfig] Writing "super-admin.conf" kubeconfig file
-[kubeconfig] Writing "kubelet.conf" kubeconfig file
-[kubeconfig] Writing "controller-manager.conf" kubeconfig file
-[kubeconfig] Writing "scheduler.conf" kubeconfig file
-[etcd] Creating static Pod manifest for local etcd in "/etc/kubernetes/manifests"
-[control-plane] Using manifest folder "/etc/kubernetes/manifests"
-[control-plane] Creating static Pod manifest for "kube-apiserver"
-[control-plane] Creating static Pod manifest for "kube-controller-manager"
-[control-plane] Creating static Pod manifest for "kube-scheduler"
-[kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
-[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
-[kubelet-start] Starting the kubelet
-[wait-control-plane] Waiting for the kubelet to boot up the control plane as static Pods from directory "/etc/kubernetes/manifests"
-[kubelet-check] Waiting for a healthy kubelet at http://127.0.0.1:10248/healthz. This can take up to 4m0s
-[kubelet-check] The kubelet is healthy after 1.000687725s
-[api-check] Waiting for a healthy API server. This can take up to 4m0s
-[api-check] The API server is healthy after 4.501509066s
-[upload-config] Storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
-[kubelet] Creating a ConfigMap "kubelet-config" in namespace kube-system with the configuration for the kubelets in the cluster
-[upload-certs] Skipping phase. Please see --upload-certs
-[mark-control-plane] Marking the node controller as control-plane by adding the labels: [node-role.kubernetes.io/control-plane node.kubernetes.io/exclude-from-external-load-balancers]
-[mark-control-plane] Marking the node controller as control-plane by adding the taints [node-role.kubernetes.io/control-plane:NoSchedule]
-[bootstrap-token] Using token: j4mv4l.xaxpvbffsrfd71c8
-[bootstrap-token] Configuring bootstrap tokens, cluster-info ConfigMap, RBAC Roles
-[bootstrap-token] Configured RBAC rules to allow Node Bootstrap tokens to get nodes
-[bootstrap-token] Configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
-[bootstrap-token] Configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
-[bootstrap-token] Configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
-[bootstrap-token] Creating the "cluster-info" ConfigMap in the "kube-public" namespace
-[kubelet-finalize] Updating "/etc/kubernetes/kubelet.conf" to point to a rotatable kubelet client certificate and key
-[addons] Applied essential addon: CoreDNS
-[addons] Applied essential addon: kube-proxy
 
-Your Kubernetes control-plane has initialized successfully!
+### 2. Configure kubectl Access
 
-To start using your cluster, you need to run the following as a regular user:
+After successful initialization, configure kubectl for your user:
 
+```bash
 mkdir -p $HOME/.kube
-  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
 
-Alternatively, if you are the root user, you can run:
-
+For root user:
+```bash
 export KUBECONFIG=/etc/kubernetes/admin.conf
-
-You should now deploy a pod network to the cluster.
-Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
-https://kubernetes.io/docs/concepts/cluster-administration/addons/
-
-You can now join any number of control-plane nodes by copying certificate authorities
-and service account keys on each node and then running the following as root:
-
-kubeadm join 10.10.10.1:6443 --token j4mv4l.xaxpvbffsrfd71c8 \
- --discovery-token-ca-cert-hash sha256:3395db34869c140f734aaf487481dbd1c2a93707fe96cc5130e16c11d8d270ca \
- --control-plane
-
-Then you can join any number of worker nodes by running the following on each as root:
-
-kubeadm join 10.10.10.1:6443 --token j4mv4l.xaxpvbffsrfd71c8 \
- --discovery-token-ca-cert-hash sha256:3395db34869c140f734aaf487481dbd1c2a93707fe96cc5130e16c11d8d270ca
 ```
 
-`/etc/netplan/50-cloud-init.yaml`
+### 3. Deploy Pod Network
 
+Install a CNI (Container Network Interface) plugin. For example, using Flannel:
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
 ```
+
+## Joining Nodes
+
+### Control Plane Nodes
+
+To add additional control plane nodes, first copy the certificates and then run:
+
+```bash
+kubeadm join 10.10.10.1:6443 --token <token> \
+  --discovery-token-ca-cert-hash sha256:<hash> \
+  --control-plane
+```
+
+### Worker Nodes
+
+To join worker nodes to the cluster:
+
+```bash
+kubeadm join 10.10.10.1:6443 --token <token> \
+  --discovery-token-ca-cert-hash sha256:<hash>
+```
+
+> **Note**: Tokens expire after 24 hours. Generate a new token with:
+> ```bash
+> kubeadm token create --print-join-command
+> ```
+
+## Network Configuration
+
+### Static IP Configuration
+
+Example Netplan configuration (`/etc/netplan/50-cloud-init.yaml`):
+
+```yaml
 network:
   version: 2
   ethernets:
-  eth0:
-    addresses: [10.10.10.3/8]
-    nameservers:
-      addresses: [10.0.0.1]
-    routes:
-      - to: default
-        via: 10.0.0.1
+    eth0:
+      addresses: [10.10.10.3/8]
+      nameservers:
+        addresses: [10.0.0.1]
+      routes:
+        - to: default
+          via: 10.0.0.1
 ```
 
+Apply network configuration:
+```bash
+sudo netplan apply
+```
+
+## Load Balancer Setup (MetalLB)
+
+### Installation
+
+Deploy MetalLB for bare metal load balancer support:
+
+```bash
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
-
-## Error
-
-```
-Error from server (InternalError): error when creating "ip-address-pool.yaml": Internal error occurred: failed calling webhook "ipaddresspoolvalidationwebhook.metallb.io": failed to call webhook: Post "https://metallb-webhook-service.metallb-system.svc:443/validate-metallb-io-v1beta1-ipaddresspool?timeout=10s": dial tcp 10.96.29.16:443: connect: no route to host
 ```
 
-- check the metallb pods and services
+### Configuration
 
+Create an IP address pool configuration:
+
+```yaml
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: first-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 10.10.10.200-10.10.10.250
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2-advert
+  namespace: metallb-system
 ```
+
+### Troubleshooting MetalLB
+
+If you encounter webhook errors during configuration:
+
+1. Check MetalLB pods and services:
+```bash
 kubectl get pods,svc -n metallb-system
 ```
+
+2. Ensure webhook service is running:
+```bash
+kubectl describe svc metallb-webhook-service -n metallb-system
+```
+
+3. Check pod logs for errors:
+```bash
+kubectl logs -n metallb-system deployment/metallb-controller
+```
+
+## Cluster Management
+
+### Check Cluster Status
+
+```bash
+# View nodes
+kubectl get nodes
+
+# View all pods across namespaces
+kubectl get pods --all-namespaces
+
+# View cluster info
+kubectl cluster-info
+
+# Check component status
+kubectl get componentstatuses
+```
+
+### Common Issues and Solutions
+
+#### Issue: No Route to Host for Services
+
+**Symptoms**: Services unreachable, webhook errors
+
+**Solution**:
+1. Check kube-proxy is running:
+```bash
+kubectl get pods -n kube-system | grep kube-proxy
+```
+
+2. Verify iptables rules:
+```bash
+sudo iptables -L -n -t nat | grep KUBE
+```
+
+3. Restart kube-proxy if needed:
+```bash
+kubectl rollout restart daemonset kube-proxy -n kube-system
+```
+
+#### Issue: CoreDNS Not Resolving
+
+**Symptoms**: DNS resolution failures within pods
+
+**Solution**:
+1. Check CoreDNS pods:
+```bash
+kubectl get pods -n kube-system -l k8s-app=kube-dns
+```
+
+2. Review CoreDNS logs:
+```bash
+kubectl logs -n kube-system -l k8s-app=kube-dns
+```
+
+3. Restart CoreDNS if needed:
+```bash
+kubectl rollout restart deployment coredns -n kube-system
+```
+
+## Security Considerations
+
+- Always use TLS certificates for API server communication
+- Implement RBAC (Role-Based Access Control)
+- Regular certificate rotation
+- Network policies for pod-to-pod communication
+- Keep Kubernetes components updated
+
+## Backup and Recovery
+
+### Backup ETCD
+
+```bash
+ETCDCTL_API=3 etcdctl snapshot save backup.db \
+  --endpoints=https://127.0.0.1:2379 \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+  --cert=/etc/kubernetes/pki/etcd/server.crt \
+  --key=/etc/kubernetes/pki/etcd/server.key
+```
+
+### Restore ETCD
+
+```bash
+ETCDCTL_API=3 etcdctl snapshot restore backup.db \
+  --data-dir=/var/lib/etcd-backup
+```
+
+## Monitoring
+
+Consider deploying monitoring solutions:
+- Prometheus for metrics collection
+- Grafana for visualization
+- Alert Manager for alerting
+
+## Additional Resources
+
+- [Official Kubernetes Documentation](https://kubernetes.io/docs/)
+- [Kubernetes Network Concepts](https://kubernetes.io/docs/concepts/cluster-administration/networking/)
+- [MetalLB Documentation](https://metallb.universe.tf/)
+- [Kubeadm Documentation](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/)

@@ -1,11 +1,10 @@
-# Proxy's Homelab`
+# Dark Knight Homelab
 
-**[Features](#features) • [Get Started](#get-started) • [Documentation](https://homelab.rootproxy.com)**
+**[Features](#features) • [Get Started](#get-started) • [Documentation](#documentation) • [Contributing](#contributing)**
 
-[![tag](https://img.shields.io/github/v/tag/proxyserver2023/homelab?style=flat-square&logo=semver&logoColor=white)](https://github.com/proxyserver2023/ton618/tags)
-[![document](https://img.shields.io/website?label=document&logo=gitbook&logoColor=white&style=flat-square&url=https%3A%2F%2Fhomelab.proxyserver2023.com)](https://homelab.proxyserver2023.com)
-[![license](https://img.shields.io/github/license/proxyserver2023/homelab?style=flat-square&logo=gnu&logoColor=white)](https://www.gnu.org/licenses/gpl-3.0.html)
-[![stars](https://img.shields.io/github/stars/proxyserver2023/homelab?logo=github&logoColor=white&color=gold&style=flat-square)](https://github.com/proxyserver2023/ton618)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=flat-square)](https://www.gnu.org/licenses/gpl-3.0)
+[![GitHub Stars](https://img.shields.io/github/stars/amir-parvin-group/dark-knight?style=flat-square&logo=github)](https://github.com/amir-parvin-group/dark-knight)
+[![GitHub Issues](https://img.shields.io/github/issues/amir-parvin-group/dark-knight?style=flat-square)](https://github.com/amir-parvin-group/dark-knight/issues)
 
 This project utilizes [Infrastructure as Code](https://en.wikipedia.org/wiki/Infrastructure_as_code) and [GitOps](https://www.weave.works/technologies/gitops) to automate provisioning, operating, and updating self-hosted services in my homelab.
 It can be used as a highly customizable framework to build your own homelab.
@@ -16,8 +15,7 @@ It can be used as a highly customizable framework to build your own homelab.
 > For more information, please see the [r/homelab introduction](https://www.reddit.com/r/homelab/wiki/introduction) and the
 > [Home Operations Discord community](https://discord.gg/home-operations) (formerly known as [k8s-at-home](https://k8s-at-home.com)).
 
-If you encounter an issue, please create [a bug report](https://github.com/proxyserver2023/ton618/issues/new?template=bug_report.md)
-(avoid asking for support about issues specific to this project in other communication channels).
+If you encounter an issue, please create [a bug report](https://github.com/amir-parvin-group/dark-knight/issues/new?template=bug_report.md).
 
 ## Overview
 
@@ -28,13 +26,13 @@ Expect breaking changes that may require a complete redeployment.
 A proper upgrade path is planned for the stable release.
 More information can be found in [the roadmap](#roadmap) below.
 
-## Demo
+## Architecture Overview
 
-<img src="./assets/ProxmoxClusterStatus.png" alt="Cluster Status" width="600" style="max-width:600px;display:block">
+<img src="./assets/ProxmoxClusterStatus.png" alt="Proxmox Cluster Status" width="600" style="max-width:600px;display:block">
 
 ## Hardware
 
-### Current Setup
+### Current Hardware Setup
 
 <img src="./assets/Current HomeLab.jpeg" alt="Current HomeLab" width="600" style="max-width:600px;display:block">
 
@@ -42,20 +40,20 @@ More information can be found in [the roadmap](#roadmap) below.
 <img src="https://assets.raspberrypi.com/static/8f6eca535dbb23a21eb41a748050e3a0/f7ad0/16gb.webp" alt="Raspberry Pi 5" width="600" style="max-width:600px;display:block">
 <img src="https://www.cudy.com/cdn/shop/files/A__GS108_1464x600-2.jpg" alt="Cudy Switch" width="600" style="max-width:600px;display:block">
 
-- MultiTasking Home Server (Custom Made):
+- **Primary Home Server** (Custom Build):
   - CPU: `32 x AMD Ryzen 9 7950X 16-Core Processor (1 Socket)`
   - RAM: `128 GiB DDR5, 6000MHz`
   - SSD: `PCIe Gen5 2TB`
   - GPU: `ZOTAC GAMING GeForce RTX 4080 SUPER`
-- Raspberry Pi 5:
+- **Raspberry Pi 5** (Secondary Node):
   - CPU: `4 x Cortex-A76 (1 Socket)`
   - RAM: `8 GiB DDR5`
   - SSD: `64 GiB`
-- Cudy `GS108 8-Port Gigabit` Desktop Switch
+- **Network Switch**: Cudy GS108 8-Port Gigabit Desktop Switch
   - Ports: `8`
   - Speed: `1000Mbps`
 
-### Features
+## Features
 
 - [x] Automated backup and restore
 - [ ] Automated Kubernetes installation and management
@@ -77,7 +75,7 @@ More information can be found in [the roadmap](#roadmap) below.
 - [ ] Single sign-on
 - [ ] Infrastructure testing
 
-### Tech Stack
+## Tech Stack
 
 <table>
     <tr>
@@ -240,12 +238,37 @@ More information can be found in [the roadmap](#roadmap) below.
 
 ## Get Started
 
-- [Try it out locally](./installation/sandbox.md) without any hardware (just 4 commands!)
-- [Deploy on real hardware](./installation/production.md) for production workload
+### Quick Start Options
+
+1. **Local Development** - [Try it out locally](./installation/sandbox.md) without any hardware
+2. **Production Deployment** - [Deploy on real hardware](./installation/production.md) for production workloads
+
+## Documentation
+
+### Core Components
+
+- [Ansible Configuration](./ansible/README.md) - Infrastructure automation and configuration management
+- [Kubernetes Setup](./docs/k8s.md) - Container orchestration and deployment
+- [Proxmox Guide](./docs/proxmox/README.md) - Virtualization platform setup and management
+- [Networking](./docs/networking.md) - Network configuration and topology
+
+### Services & Applications
+
+- [Pi-hole](./docs/pi-hole.md) - Network-wide ad blocking
+- [TrueNAS Storage](./docs/manage-storage-with-truenas.md) - Network-attached storage management
+- [GitHub Self-Hosted Runner](./docker/gh-self-hosted-runner/README.md) - CI/CD infrastructure
+
+### Installation Guides
+
+- [Sandbox Environment](./installation/sandbox.md) - Local testing environment
+- [Production Environment](./installation/production.md) - Full production deployment
+- [Proxmox Post-Installation](./docs/proxmox/proxmox-post-installation.md) - Initial setup after installation
+- [VM Templates](./docs/proxmox/proxmox-vm-template.md) - Creating reusable VM templates
+- [Storage Expansion](./docs/proxmox/increase-storage.md) - Adding storage to Proxmox
 
 ## Roadmap
 
-See [roadmap](./roadmap.md) and [open issues](https://github.com/proxyserver2023/ton618/issues) for a list of proposed features and known issues.
+See [roadmap](./roadmap.md) and [open issues](https://github.com/amir-parvin-group/dark-knight/issues) for a list of proposed features and known issues.
 
 ## Contributing
 
@@ -262,18 +285,19 @@ See [license page](./LICENSE.md) for more information.
 
 ## Acknowledgements
 
-References:
+### References & Inspiration
 
 - [Jeff CTO - HomeLab](https://www.youtube.com/@jeffsponaugle6339)
 - [Homelab - Khue Doan](https://homelab.khuedoan.com/)
 
-Here is a list of the contributors who have helped to improve this project.
-Big shout-out to them!
+### Contributors
 
-- ![](https://github.com/.png?size=24) [@proxyserver2023](https://github.com/proxyserver2023)
+We appreciate all contributions to this project! Special thanks to:
 
-If you feel you're missing from this list, please feel free to add yourself in a PR.
+- [@proxyserver2023](https://github.com/proxyserver2023) - Project creator and maintainer
 
-## Stargazers over time
+If you've contributed and aren't listed here, please feel free to add yourself in a PR.
 
-[![Stargazers over time](https://starchart.cc/)](https://starchart.cc/)
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=amir-parvin-group/dark-knight&type=Date)](https://star-history.com/#amir-parvin-group/dark-knight&Date)
