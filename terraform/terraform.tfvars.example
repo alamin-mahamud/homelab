@@ -1,0 +1,32 @@
+# Proxmox Connection Settings
+proxmox_host     = "192.168.1.100"  # Your Proxmox server IP
+proxmox_user     = "root@pam"       # Or create a dedicated terraform user
+proxmox_password = "your-secure-password"
+
+# SSH Configuration
+ssh_public_key = "ssh-rsa AAAAB3... your-ssh-public-key"
+
+# Cluster Configuration
+cluster_name = "homelab-cluster"
+
+# Network Configuration (optional overrides)
+# network_config = {
+#   k8s_vlan_id     = 10
+#   storage_vlan_id = 20
+#   mgmt_vlan_id    = 50
+#   gateway         = "192.168.1.1"
+#   dns_servers     = ["192.168.1.1", "1.1.1.1"]
+# }
+
+# Resource Scaling (optional)
+# k8s_nodes = {
+#   masters = 3
+#   workers = 3
+# }
+
+# Storage Configuration (optional)
+# storage_pools = {
+#   local_lvm   = "local-lvm"
+#   zfs_storage = "zfs-storage"
+#   nfs_storage = "nfs-storage"
+# }

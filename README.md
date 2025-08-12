@@ -1,13 +1,20 @@
-# Dark Knight Homelab
+# Dark Knight Homelab - Enterprise DevOps & Kubernetes Infrastructure
 
-**[Features](#features) • [Get Started](#get-started) • [Documentation](#documentation) • [Contributing](#contributing)**
+**[Features](#features) • [Get Started](#get-started) • [Documentation](#documentation) • [Architecture](#architecture) • [Contributing](#contributing)**
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=flat-square)](https://www.gnu.org/licenses/gpl-3.0)
 [![GitHub Stars](https://img.shields.io/github/stars/amir-parvin-group/dark-knight?style=flat-square&logo=github)](https://github.com/amir-parvin-group/dark-knight)
 [![GitHub Issues](https://img.shields.io/github/issues/amir-parvin-group/dark-knight?style=flat-square)](https://github.com/amir-parvin-group/dark-knight/issues)
+[![Infrastructure](https://img.shields.io/badge/Infrastructure-Proxmox%20%2B%20K8s-orange?style=flat-square)]()
+[![Automation](https://img.shields.io/badge/Automation-Terraform%20%2B%20Ansible-purple?style=flat-square)]()
 
-This project utilizes [Infrastructure as Code](https://en.wikipedia.org/wiki/Infrastructure_as_code) and [GitOps](https://www.weave.works/technologies/gitops) to automate provisioning, operating, and updating self-hosted services in my homelab.
-It can be used as a highly customizable framework to build your own homelab.
+**Production-grade homelab infrastructure** featuring high-availability Proxmox clustering, Kubernetes orchestration, and full DevOps automation stack. Built for learning, development, and running production workloads with enterprise-level reliability.
+
+## Primary Use Case
+
+🏠 **Homelab** • 🚀 **DevOps** • ☁️ **Infrastructure** • ⚙️ **Kubernetes**
+
+This project implements [Infrastructure as Code](https://en.wikipedia.org/wiki/Infrastructure_as_code) and [GitOps](https://www.weave.works/technologies/gitops) principles to automate provisioning, operating, and updating self-hosted services in a production-grade homelab environment.
 
 > **What is a homelab?**
 >
@@ -17,16 +24,50 @@ It can be used as a highly customizable framework to build your own homelab.
 
 If you encounter an issue, please create [a bug report](https://github.com/amir-parvin-group/dark-knight/issues/new?template=bug_report.md).
 
-## Overview
+## Project Status
 
-Project status: **ALPHA**
+🚧 **Status**: Production-Ready Foundation with Active Development
 
-This project is still in the experimental stage, and I don't use anything critical on it.
-Expect breaking changes that may require a complete redeployment.
-A proper upgrade path is planned for the stable release.
-More information can be found in [the roadmap](#roadmap) below.
+- ✅ **Core Infrastructure**: Proxmox cluster operational
+- ✅ **Kubernetes Platform**: HA cluster deployed
+- 🔄 **In Progress**: Service mesh, observability, GitOps workflows
+- 📅 **Planned**: AI/ML workloads, multi-site replication
 
-## Architecture Overview
+See our [detailed roadmap](./roadmap.md) for the complete development timeline.
+
+## Architecture
+
+### Infrastructure Stack
+
+```mermaid
+graph TB
+    subgraph Physical["Physical Layer"]
+        Server["AMD Ryzen 9 Server<br/>128GB RAM | RTX 4080"]
+        Pi["Raspberry Pi 5<br/>8GB RAM"]
+        Network["Gigabit Network<br/>VLANs Configured"]
+    end
+    
+    subgraph Virtual["Virtualization Layer"]
+        Proxmox["Proxmox VE Cluster<br/>HA Configuration"]
+        VMs["Ubuntu VMs<br/>Kubernetes Nodes"]
+    end
+    
+    subgraph Orchestration["Container Orchestration"]
+        K8s["Kubernetes HA Cluster<br/>3 Masters + Workers"]
+        Storage["Longhorn/Ceph<br/>Distributed Storage"]
+    end
+    
+    subgraph Services["Application Layer"]
+        DevOps["CI/CD • GitOps<br/>ArgoCD • GitHub Actions"]
+        Apps["Production Services<br/>Monitoring • Databases"]
+    end
+    
+    Physical --> Virtual
+    Virtual --> Orchestration
+    Orchestration --> Services
+```
+
+### Current Cluster Status
 
 <img src="./assets/ProxmoxClusterStatus.png" alt="Proxmox Cluster Status" width="600" style="max-width:600px;display:block">
 
@@ -55,25 +96,26 @@ More information can be found in [the roadmap](#roadmap) below.
 
 ## Features
 
-- [x] Automated backup and restore
-- [ ] Automated Kubernetes installation and management
-- [ ] Installing and managing applications using GitOps
-- [ ] CI/CD platform
-- [ ] Distributed storage
-- [ ] Monitoring and alerting
-- [ ] Common applications: Gitea, Jellyfin, Paperless...
-- [ ] Automated bare metal provisioning with PXE boot
-- [ ] Automatic rolling upgrade for OS and Kubernetes
-- [ ] Automatically update apps (with approval)
-- [ ] Modular architecture, easy to add or remove features/components
-- [ ] Automatically update DNS records for exposed services
-- [ ] Automated certificate management
-- [ ] Expose services to the internet securely with [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/)
-- [ ] VPN (Tailscale or Wireguard)
-- [ ] Private container registry
-- [ ] Support multiple environments (dev, prod)
-- [ ] Single sign-on
-- [ ] Infrastructure testing
+### ✅ Production Ready
+- [x] **High Availability Proxmox Cluster** - Multi-node virtualization with automatic failover
+- [x] **Kubernetes HA Deployment** - Production-grade container orchestration
+- [x] **Network Segmentation** - VLANs and security policies
+- [x] **Infrastructure as Code** - Terraform and Ansible automation
+- [x] **Automated Backup & Restore** - Scheduled backups with verification
+
+### 🚧 In Development
+- [ ] **GitOps Workflow** - ArgoCD for declarative deployments
+- [ ] **Full Observability Stack** - Prometheus, Grafana, Loki, Jaeger
+- [ ] **Service Mesh** - Istio/Linkerd for advanced networking
+- [ ] **Distributed Storage** - Ceph/Longhorn for persistent volumes
+- [ ] **CI/CD Platform** - GitHub Actions self-hosted runners
+
+### 📋 Planned Features
+- [ ] **Multi-Site Replication** - Disaster recovery across locations
+- [ ] **AI/ML Workloads** - GPU-accelerated computing with CUDA
+- [ ] **Zero Trust Security** - Cloudflare Tunnel and mTLS everywhere
+- [ ] **Auto-Scaling** - HPA/VPA and cluster autoscaling
+- [ ] **Single Sign-On** - Unified authentication with Kanidm/Keycloak
 
 ## Tech Stack
 
@@ -238,37 +280,79 @@ More information can be found in [the roadmap](#roadmap) below.
 
 ## Get Started
 
-### Quick Start Options
+### Prerequisites
 
-1. **Local Development** - [Try it out locally](./installation/sandbox.md) without any hardware
-2. **Production Deployment** - [Deploy on real hardware](./installation/production.md) for production workloads
+- **Hardware**: Minimum 32GB RAM, 500GB storage, virtualization support
+- **Software**: Proxmox VE 8.x, Ubuntu 22.04 LTS
+- **Networking**: Static IPs, VLAN support recommended
+
+### Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/amir-parvin-group/dark-knight.git
+cd dark-knight/homelab
+
+# Initialize Terraform
+cd terraform
+terraform init
+
+# Deploy infrastructure
+terraform plan
+terraform apply
+
+# Configure with Ansible
+cd ../ansible
+ansible-playbook -i inventories/hosts/k8s.ini playbooks/k8s/deploy.yaml
+```
+
+### Deployment Options
+
+1. **Local Development** - [Sandbox environment](./docs/installation/sandbox.md) for testing
+2. **Production Deployment** - [Full production setup](./docs/installation/production.md)
+3. **Quick VM Template** - [Automated VM creation](./proxmox/prepare-vm-template.sh)
 
 ## Documentation
 
-### Core Components
+### 🏗️ Infrastructure Setup
+- **[Proxmox Cluster](./docs/proxmox/)** - Virtualization platform deployment
+  - [Post-Installation](./docs/proxmox/proxmox-post-installation.md) - Initial configuration
+  - [VM Templates](./docs/proxmox/proxmox-vm-template.md) - Automated VM creation
+  - [Storage Management](./docs/proxmox/increase-storage.md) - LVM and ZFS configuration
 
-- [Ansible Configuration](./ansible/README.md) - Infrastructure automation and configuration management
-- [Kubernetes Setup](./docs/k8s.md) - Container orchestration and deployment
-- [Proxmox Guide](./docs/proxmox/README.md) - Virtualization platform setup and management
-- [Networking](./docs/networking.md) - Network configuration and topology
+### ⚙️ Kubernetes Platform
+- **[Kubernetes Deployment](./docs/k8s.md)** - HA cluster setup and management
+- **[Ansible Automation](./ansible/)** - Configuration management
+- **[Terraform IaC](./terraform/)** - Infrastructure provisioning
 
-### Services & Applications
+### 🌐 Networking & Storage
+- **[Network Architecture](./docs/networking.md)** - VLANs, SDN, and security
+- **[TrueNAS Integration](./docs/manage-storage-with-truenas.md)** - Enterprise storage
+- **[IP Management](./docs/ips.md)** - Network allocation and planning
 
-- [Pi-hole](./docs/pi-hole.md) - Network-wide ad blocking
-- [TrueNAS Storage](./docs/manage-storage-with-truenas.md) - Network-attached storage management
-- [GitHub Self-Hosted Runner](./docker/gh-self-hosted-runner/README.md) - CI/CD infrastructure
+### 🚀 DevOps & Services
+- **[CI/CD Setup](./docker/gh-self-hosted-runner/)** - GitHub Actions runners
+- **[Observability](./observability/)** - Monitoring and alerting
+- **[Pi-hole DNS](./docs/pi-hole.md)** - Network-wide ad blocking
 
-### Installation Guides
+### 📚 Guides
+- **[Production Deployment](./docs/installation/production.md)** - Full setup guide
+- **[Development Environment](./docs/installation/sandbox.md)** - Local testing
+- **[Hardware Transition](./docs/macbook-transition.md)** - MacBook upgrade strategy
 
-- [Sandbox Environment](./installation/sandbox.md) - Local testing environment
-- [Production Environment](./installation/production.md) - Full production deployment
-- [Proxmox Post-Installation](./docs/proxmox/proxmox-post-installation.md) - Initial setup after installation
-- [VM Templates](./docs/proxmox/proxmox-vm-template.md) - Creating reusable VM templates
-- [Storage Expansion](./docs/proxmox/increase-storage.md) - Adding storage to Proxmox
+## Roadmap & Investment Strategy
 
-## Roadmap
+### Current Phase: Infrastructure Optimization
+- Consolidating services on existing hardware
+- Implementing cost-effective storage solutions
+- Building automation before scaling hardware
 
-See [roadmap](./roadmap.md) and [open issues](https://github.com/amir-parvin-group/dark-knight/issues) for a list of proposed features and known issues.
+### Budget-Conscious Progression
+1. **Phase 1** ($500-1000): Storage expansion with consumer NAS
+2. **Phase 2** ($1000-2000): Refurbished enterprise servers
+3. **Phase 3** ($2000+): Rack infrastructure and 10GbE networking
+
+Full details in [roadmap.md](./roadmap.md) • Track progress via [issues](https://github.com/amir-parvin-group/dark-knight/issues)
 
 ## Contributing
 

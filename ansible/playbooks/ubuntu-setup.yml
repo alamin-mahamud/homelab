@@ -1,0 +1,344 @@
+---
+# Ubuntu Server Initial Setup Playbook
+# This playbook configures Ubuntu servers with:
+# - Security hardening
+# - Docker and container runtime
+# - Monitoring agents
+# - Network optimization
+
+- name: Initial Ubuntu Server Setup
+  hosts: all
+  become: yes
+  vars:
+    docker_version: "24.0"
+    containerd_version: "1.7"
+    timezone: "America/New_York"
+    
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+        cache_valid_time: 3600
+      
+    - name: Install essential packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - software-properties-common
+          - vim
+          - htop
+          - iotop
+          - net-tools
+          - ntp
+          - fail2ban
+          - ufw
+          - python3-pip
+          - python3-venv
+          - git
+          - wget
+          - unzip
+          - jq
+          - tmux
+        state: present
+        
+    - name: Set timezone
+      timezone:
+        name: "{{ timezone }}"
+        
+    - name: Configure sysctl for performance
+      sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        state: present
+        reload: yes
+      loop:
+        - { name: 'net.core.rmem_max', value: '134217728' }
+        - { name: 'net.core.wmem_max', value: '134217728' }
+        - { name: 'net.ipv4.tcp_rmem', value: '4096 87380 134217728' }
+        - { name: 'net.ipv4.tcp_wmem', value: '4096 65536 134217728' }
+        - { name: 'net.core.netdev_max_backlog', value: '30000' }
+        - { name: 'net.ipv4.tcp_congestion_control', value: 'bbr' }
+        - { name: 'net.core.default_qdisc', value: 'fq' }
+        - { name: 'fs.inotify.max_user_watches', value: '524288' }
+        - { name: 'fs.inotify.max_user_instances', value: '512' }
+        
+    - name: Configure UFW firewall
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - '22'    # SSH
+        - '80'    # HTTP
+        - '443'   # HTTPS
+        - '6443'  # Kubernetes API
+        - '10250' # Kubelet
+        - '10251' # kube-scheduler
+        - '10252' # kube-controller-manager
+        - '2379'  # etcd client
+        - '2380'  # etcd peer
+        
+    - name: Enable UFW
+      ufw:
+        state: enabled
+        policy: deny
+        direction: incoming
+        
+    - name: Configure fail2ban
+      template:
+        src: fail2ban.local.j2
+        dest: /etc/fail2ban/jail.local
+      notify: restart fail2ban
+      
+    - name: Create docker group
+      group:
+        name: docker
+        state: present
+        
+    - name: Add user to docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+        
+    - name: Install Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+        
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+        
+    - name: Install Docker and containerd
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+        
+    - name: Configure Docker daemon
+      copy:
+        content: |
+          {
+            "exec-opts": ["native.cgroupdriver=systemd"],
+            "log-driver": "json-file",
+            "log-opts": {
+              "max-size": "100m",
+              "max-file": "10"
+            },
+            "storage-driver": "overlay2",
+            "storage-opts": [
+              "overlay2.override_kernel_check=true"
+            ],
+            "metrics-addr": "0.0.0.0:9323",
+            "experimental": true
+          }
+        dest: /etc/docker/daemon.json
+      notify: restart docker
+      
+    - name: Start and enable Docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+        daemon_reload: yes
+        
+    - name: Configure containerd for Kubernetes
+      shell: |
+        containerd config default | tee /etc/containerd/config.toml
+        sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
+      notify: restart containerd
+      
+    - name: Install node_exporter for Prometheus
+      block:
+        - name: Download node_exporter
+          unarchive:
+            src: https://github.com/prometheus/node_exporter/releases/download/v1.7.0/node_exporter-1.7.0.linux-amd64.tar.gz
+            dest: /tmp
+            remote_src: yes
+            
+        - name: Move node_exporter binary
+          copy:
+            src: /tmp/node_exporter-1.7.0.linux-amd64/node_exporter
+            dest: /usr/local/bin/node_exporter
+            mode: '0755'
+            remote_src: yes
+            
+        - name: Create node_exporter service
+          copy:
+            content: |
+              [Unit]
+              Description=Node Exporter
+              After=network.target
+              
+              [Service]
+              Type=simple
+              User=nobody
+              Group=nogroup
+              ExecStart=/usr/local/bin/node_exporter
+              Restart=always
+              RestartSec=5
+              
+              [Install]
+              WantedBy=multi-user.target
+            dest: /etc/systemd/system/node_exporter.service
+            
+        - name: Start node_exporter
+          systemd:
+            name: node_exporter
+            enabled: yes
+            state: started
+            daemon_reload: yes
+            
+    - name: Configure log rotation
+      copy:
+        content: |
+          /var/log/syslog
+          /var/log/auth.log
+          {
+              rotate 7
+              daily
+              missingok
+              notifempty
+              compress
+              delaycompress
+              postrotate
+                  systemctl reload rsyslog
+              endscript
+          }
+        dest: /etc/logrotate.d/rsyslog
+        
+    - name: Set up automatic security updates
+      apt:
+        name: unattended-upgrades
+        state: present
+        
+    - name: Configure automatic updates
+      copy:
+        content: |
+          APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::Download-Upgradeable-Packages "1";
+          APT::Periodic::AutocleanInterval "7";
+          APT::Periodic::Unattended-Upgrade "1";
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        
+    - name: Configure SSH hardening
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        state: present
+      loop:
+        - { regexp: '^#?PermitRootLogin', line: 'PermitRootLogin no' }
+        - { regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication no' }
+        - { regexp: '^#?PubkeyAuthentication', line: 'PubkeyAuthentication yes' }
+        - { regexp: '^#?ClientAliveInterval', line: 'ClientAliveInterval 300' }
+        - { regexp: '^#?ClientAliveCountMax', line: 'ClientAliveCountMax 2' }
+      notify: restart ssh
+      
+  handlers:
+    - name: restart fail2ban
+      systemd:
+        name: fail2ban
+        state: restarted
+        
+    - name: restart docker
+      systemd:
+        name: docker
+        state: restarted
+        daemon_reload: yes
+        
+    - name: restart containerd
+      systemd:
+        name: containerd
+        state: restarted
+        
+    - name: restart ssh
+      systemd:
+        name: ssh
+        state: restarted
+
+---
+# Kubernetes Prerequisites Playbook
+- name: Prepare Ubuntu for Kubernetes
+  hosts: k8s_nodes
+  become: yes
+  
+  tasks:
+    - name: Disable swap
+      command: swapoff -a
+      
+    - name: Remove swap from fstab
+      lineinfile:
+        path: /etc/fstab
+        regexp: '.*swap.*'
+        state: absent
+        
+    - name: Load required kernel modules
+      modprobe:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - overlay
+        - br_netfilter
+        
+    - name: Persist kernel modules
+      copy:
+        content: |
+          overlay
+          br_netfilter
+        dest: /etc/modules-load.d/k8s.conf
+        
+    - name: Configure sysctl for Kubernetes
+      sysctl:
+        name: "{{ item }}"
+        value: '1'
+        state: present
+        reload: yes
+      loop:
+        - net.bridge.bridge-nf-call-iptables
+        - net.bridge.bridge-nf-call-ip6tables
+        - net.ipv4.ip_forward
+        
+    - name: Install Kubernetes GPG key
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+        
+    - name: Add Kubernetes repository
+      apt_repository:
+        repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+        state: present
+        
+    - name: Install Kubernetes components
+      apt:
+        name:
+          - kubelet=1.29.0-00
+          - kubeadm=1.29.0-00
+          - kubectl=1.29.0-00
+        state: present
+        update_cache: yes
+        
+    - name: Hold Kubernetes packages
+      dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      loop:
+        - kubelet
+        - kubeadm
+        - kubectl
+        
+    - name: Enable kubelet
+      systemd:
+        name: kubelet
+        enabled: yes
+        state: started

@@ -53,12 +53,14 @@ This document outlines the journey to build a production-grade homelab, from ini
 
 ### Current Setup (Phase 0) ✅
 
-| Component | Specification | Status |
-|-----------|--------------|--------|
-| **Primary Server** | AMD Ryzen 9 7950X, 128GB DDR5, 2TB NVMe, RTX 4080 SUPER | ✅ Operational |
-| **Secondary Node** | Raspberry Pi 5, 8GB RAM, 64GB Storage | ✅ Operational |
-| **Networking** | Cudy GS108 8-Port Gigabit Switch | ✅ Operational |
-| **Router** | TP-Link AX6600 Wi-Fi 6 | ✅ Operational |
+| Component | Specification | Status | Next Action |
+|-----------|--------------|--------|-------------|
+| **Primary Server** | AMD Ryzen 9 7950X, 128GB DDR5, 2TB NVMe, RTX 4080 SUPER | ✅ Operational | Optimize for VMs |
+| **Secondary Node** | Raspberry Pi 5, 8GB RAM, 64GB Storage | ✅ Operational | K3s agent node |
+| **Networking** | Cudy GS108 8-Port Gigabit Switch | ✅ Operational | Plan 10GbE upgrade |
+| **Router** | TP-Link AX6600 Wi-Fi 6 | ✅ Operational | Configure VLANs |
+| **MacBooks** | 2019 15" + 2020 13" (retiring) | ⚠️ Aging | Transition to M4 Air |
+| **New Laptop** | MacBook Air M4 2025 24GB (incoming) | 🎯 Ordered | Primary workstation |
 
 ### 42U Rack Layout (Future State)
 
@@ -73,34 +75,45 @@ This document outlines the journey to build a production-grade homelab, from ini
 | **U5-2** | UPS System (4U) | Power protection |
 | **U1** | PDU | Power distribution |
 
-## 💰 Investment Phases
+## 💰 Budget-Optimized Investment Strategy
 
-### Phase 1: Storage Expansion ($2,000-3,000)
+### Smart Purchasing Approach
+**Philosophy**: Buy refurbished enterprise gear for base infrastructure, new mini-PCs for efficiency
 
-| Item | Specification | Budget | Priority |
-|------|--------------|--------|----------|
-| **NAS Server** | 2U chassis, 20-40TB usable | $2,000 | High |
-| **Cloud Access** | Cloudflare Zero Trust | $5/month | High |
-| **Backup Solution** | Off-site backup storage | $500 | Medium |
+### Phase 1: Core Infrastructure ($800-1,500) ✅ RECOMMENDED START
 
-### Phase 2: Infrastructure Build ($3,000-5,000)
+| Item | Specification | Budget | Why This First |
+|------|--------------|--------|----------------|
+| **Refurbished Server** | Dell R730/HP DL380 G9, 128GB RAM | $800 | Best value for storage/compute |
+| **Travel Mini-PC** | Minisforum UM790 Pro or similar | $750 | Portable lab for travel |
+| **Network Upgrade** | Used 10GbE switch + NICs | $300 | Eliminates bottlenecks |
+| **Smart PDU** | Used APC managed PDU | $150 | Remote power management |
 
-| Item | Specification | Budget | Priority |
-|------|--------------|--------|----------|
-| **42U Rack** | Server cabinet with cooling | $500 | High |
-| **Management Switch** | UniFi Dream Machine Pro | $400 | High |
-| **PDU** | Metered/Smart PDU | $200 | High |
-| **Additional Compute** | 2U server for cluster | $2,000 | Medium |
-| **10GbE Networking** | NICs and switching | $1,000 | Medium |
-
-### Phase 3: Enterprise Features ($5,000+)
+### Phase 2: Expansion & Redundancy ($1,000-2,000)
 
 | Item | Specification | Budget | Priority |
 |------|--------------|--------|----------|
-| **High-Speed NICs** | 25/100GbE RDMA | $500/card | Low |
-| **Enterprise Storage** | 24TB HDDs for Ceph | $500/drive | Medium |
-| **Firewall Appliance** | pfSense/OPNsense | $500 | Medium |
-| **UPS Upgrade** | 1500VA+ Smart UPS | $600 | High |
+| **Storage Array** | Used NetApp DS4246 + disks | $600 | Massive storage expansion |
+| **Edge Nodes** | 3x Used NUC/ThinkCentre | $500 | Distributed computing |
+| **Backup Server** | R720 or similar | $400 | Dedicated backup node |
+| **UPS System** | 1500VA refurbished | $300 | Power protection |
+
+### Phase 3: Production Features ($1,500-3,000)
+
+| Item | Specification | Budget | ROI Justification |
+|------|--------------|--------|-------------------|
+| **GPU Node** | Used workstation w/ GPU | $1,000 | AI/ML workloads |
+| **NVMe Storage** | 4x 2TB Enterprise U.2 | $800 | Database performance |
+| **Colo Space** | 4U quarter rack | $100/mo | Off-site redundancy |
+| **Monitoring** | Dedicated observability node | $400 | Production visibility |
+
+### Cost Comparison: Old vs New Strategy
+
+| Approach | Initial Cost | Monthly Power | 3-Year TCO | Performance |
+|----------|-------------|---------------|------------|-------------|
+| Original Plan | $10,000+ | $200 | $17,200 | 100% |
+| Optimized Plan | $3,500 | $60 | $5,660 | 95% |
+| Savings | **$6,500** | **$140** | **$11,540** | -5% |
 
 ## 🌞 Renewable Energy Considerations
 
@@ -135,27 +148,48 @@ This document outlines the journey to build a production-grade homelab, from ini
 - Build CI/CD best practices
 - Develop Infrastructure as Code expertise
 
-## 🚀 Next Steps
+## 🚀 Execution Timeline - Budget Optimized
 
-1. **Immediate** (This Month)
-   - Complete TrueNAS deployment
-   - Document current setup thoroughly
-   - Plan storage expansion
+### Week 1-2: Foundation
+- [ ] Research and price refurbished Dell R730/R730XD on LabGopher
+- [ ] Set up Tailscale mesh network for secure remote access
+- [ ] Configure IPMI on existing server for remote management
+- [ ] Document current infrastructure in CLAUDE.md
 
-2. **Short Term** (3 Months)
-   - Implement full monitoring stack
-   - Deploy GitOps workflow
-   - Add backup solutions
+### Month 1: Core Purchases ($800-1500)
+- [ ] **Buy**: Refurbished Dell R730 or HP DL380 G9
+- [ ] **Buy**: Minisforum UM790 Pro for travel setup
+- [ ] Deploy Proxmox on new server
+- [ ] Set up distributed Kubernetes across nodes
 
-3. **Medium Term** (6 Months)
-   - Acquire rack and infrastructure
-   - Expand compute cluster
-   - Implement service mesh
+### Month 2-3: Infrastructure Automation
+- [ ] Implement Terraform for Proxmox provisioning
+- [ ] Create Ansible playbooks for Ubuntu VMs
+- [ ] Deploy ArgoCD for GitOps workflow
+- [ ] Set up Longhorn for distributed storage
 
-4. **Long Term** (12+ Months)
-   - AI/ML workload platform
-   - Multi-site replication
-   - Renewable energy integration
+### Month 4-6: Production Readiness
+- [ ] Add monitoring stack (Prometheus/Grafana/Loki)
+- [ ] Implement backup strategy with restic/velero
+- [ ] Deploy service mesh (Istio/Linkerd)
+- [ ] Add second refurb server for HA ($400-600)
+
+### Month 6-12: Scale & Optimize
+- [ ] Evaluate cloud hybrid options (Oracle free tier)
+- [ ] Add GPU compute node if needed
+- [ ] Implement edge computing nodes
+- [ ] Consider small colo for critical services
+
+## 🎯 Success Metrics - Revised
+
+| Metric | Original Target | Optimized Target | Cost Savings |
+|--------|----------------|------------------|---------------|
+| Total Investment | $10,000+ | $3,500 | 65% |
+| Power Consumption | 5kW average | 1.5kW average | 70% |
+| Monthly Operating | $400 | $100 | 75% |
+| Compute Capacity | 100 vCPUs | 120 vCPUs | +20% |
+| Storage Capacity | 100TB | 60TB | -40% |
+| Remote Capability | Limited | Full | +100% |
 
 ## 📚 Resources & References
 

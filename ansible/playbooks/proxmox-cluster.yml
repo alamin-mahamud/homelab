@@ -1,0 +1,202 @@
+---
+# Proxmox VE Cluster Configuration Playbook
+# This playbook sets up and configures a Proxmox cluster
+
+- name: Configure Proxmox Cluster
+  hosts: proxmox_nodes
+  become: yes
+  vars:
+    cluster_name: "homelab-cluster"
+    cluster_network: "192.168.1.0/24"
+    corosync_network: "192.168.100.0/24"  # Dedicated cluster network
+    
+  tasks:
+    - name: Update Proxmox packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+      when: ansible_distribution == "Debian"
+      
+    - name: Configure Proxmox repository (no-subscription)
+      copy:
+        content: |
+          deb http://download.proxmox.com/debian/pve bookworm pve-no-subscription
+        dest: /etc/apt/sources.list.d/pve-no-subscription.list
+      when: use_no_subscription | default(true)
+      
+    - name: Remove enterprise repository
+      file:
+        path: /etc/apt/sources.list.d/pve-enterprise.list
+        state: absent
+      when: use_no_subscription | default(true)
+      
+    - name: Install essential tools
+      apt:
+        name:
+          - vim
+          - htop
+          - iotop
+          - net-tools
+          - ntp
+          - lvm2
+          - thin-provisioning-tools
+          - bridge-utils
+          - ifupdown2
+        state: present
+        
+    - name: Configure network bridges
+      template:
+        src: interfaces.j2
+        dest: /etc/network/interfaces
+        backup: yes
+      notify: restart networking
+      
+    - name: Configure storage pools
+      block:
+        - name: Create LVM volume group for VMs
+          lvg:
+            vg: vg_vms
+            pvs: /dev/sdb
+            
+        - name: Create thin pool
+          lvol:
+            vg: vg_vms
+            lv: data
+            size: 90%VG
+            opts: --thin
+            
+    - name: Configure ZFS (if applicable)
+      block:
+        - name: Check if ZFS is installed
+          command: which zpool
+          register: zfs_installed
+          ignore_errors: yes
+          
+        - name: Create ZFS pool
+          command: |
+            zpool create -f -o ashift=12 -O compression=lz4 -O atime=off zfs-storage mirror /dev/sdc /dev/sdd
+          when: zfs_installed.rc == 0 and create_zfs_pool | default(false)
+          
+    - name: Initialize Proxmox cluster (on first node only)
+      command: pvecm create {{ cluster_name }}
+      when: inventory_hostname == groups['proxmox_nodes'][0]
+      ignore_errors: yes
+      
+    - name: Join nodes to cluster
+      command: pvecm add {{ hostvars[groups['proxmox_nodes'][0]]['ansible_default_ipv4']['address'] }}
+      when: inventory_hostname != groups['proxmox_nodes'][0]
+      ignore_errors: yes
+      
+    - name: Configure Corosync for HA
+      template:
+        src: corosync.conf.j2
+        dest: /etc/corosync/corosync.conf
+        backup: yes
+      notify: restart corosync
+      
+    - name: Configure HA groups
+      command: |
+        ha-manager groupadd k8s-masters --nodes {{ groups['proxmox_nodes'] | join(',') }} --nofailback 1
+      when: inventory_hostname == groups['proxmox_nodes'][0]
+      ignore_errors: yes
+      
+    - name: Set up backup schedule
+      cron:
+        name: "Daily VM backup"
+        hour: "2"
+        minute: "0"
+        job: "/usr/bin/vzdump --all --compress zstd --mode snapshot --storage backup --mailnotification failure"
+        
+    - name: Configure monitoring
+      block:
+        - name: Install Proxmox metrics server
+          apt:
+            name: pve-metricserver
+            state: present
+            
+        - name: Configure InfluxDB metrics
+          copy:
+            content: |
+              influxdb: homelab-metrics
+                server {{ monitoring_server | default('192.168.1.50') }}
+                port 8086
+            dest: /etc/pve/status.cfg
+            
+    - name: Configure firewall
+      block:
+        - name: Enable datacenter firewall
+          command: pvesh set /cluster/firewall/options -enable 1
+          
+        - name: Add management network rule
+          command: |
+            pvesh create /cluster/firewall/rules -type in -action ACCEPT -source {{ cluster_network }} -dest {{ cluster_network }} -comment "Cluster management"
+            
+    - name: Configure email notifications
+      lineinfile:
+        path: /etc/postfix/main.cf
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      loop:
+        - { regexp: '^relayhost =', line: 'relayhost = [smtp.gmail.com]:587' }
+        - { regexp: '^smtp_use_tls =', line: 'smtp_use_tls = yes' }
+        - { regexp: '^smtp_sasl_auth_enable =', line: 'smtp_sasl_auth_enable = yes' }
+      when: configure_email | default(false)
+      
+    - name: Optimize Proxmox performance
+      sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        state: present
+        reload: yes
+      loop:
+        - { name: 'vm.swappiness', value: '10' }
+        - { name: 'vm.min_free_kbytes', value: '262144' }
+        - { name: 'net.ipv4.tcp_congestion_control', value: 'bbr' }
+        - { name: 'net.core.default_qdisc', value: 'fq' }
+        
+  handlers:
+    - name: restart networking
+      systemd:
+        name: networking
+        state: restarted
+        
+    - name: restart corosync
+      systemd:
+        name: corosync
+        state: restarted
+        
+---
+# VM Template Creation Playbook
+- name: Create VM Templates
+  hosts: proxmox_nodes[0]
+  become: yes
+  vars:
+    templates:
+      - name: ubuntu-2204-template
+        vmid: 9000
+        iso: ubuntu-22.04.3-live-server-amd64.iso
+      - name: debian-12-template
+        vmid: 9001
+        iso: debian-12.2.0-amd64-netinst.iso
+        
+  tasks:
+    - name: Download ISOs
+      get_url:
+        url: "{{ item.url }}"
+        dest: "/var/lib/vz/template/iso/{{ item.iso }}"
+      loop:
+        - { url: "https://releases.ubuntu.com/22.04.3/ubuntu-22.04.3-live-server-amd64.iso", iso: "ubuntu-22.04.3-live-server-amd64.iso" }
+        - { url: "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.2.0-amd64-netinst.iso", iso: "debian-12.2.0-amd64-netinst.iso" }
+      when: download_isos | default(false)
+      
+    - name: Create VM templates
+      shell: |
+        qm create {{ item.vmid }} --name {{ item.name }} --memory 2048 --cores 2 --net0 virtio,bridge=vmbr0
+        qm set {{ item.vmid }} --scsihw virtio-scsi-pci --scsi0 local-lvm:32
+        qm set {{ item.vmid }} --ide2 local:iso/{{ item.iso }},media=cdrom
+        qm set {{ item.vmid }} --boot c --bootdisk scsi0
+        qm set {{ item.vmid }} --serial0 socket --vga serial0
+        qm set {{ item.vmid }} --agent enabled=1
+        qm template {{ item.vmid }}
+      loop: "{{ templates }}"
+      ignore_errors: yes
