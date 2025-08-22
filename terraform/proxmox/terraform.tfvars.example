@@ -1,0 +1,27 @@
+# Proxmox Configuration
+proxmox_password = "your-proxmox-password"
+
+# VM Configuration
+vm_name      = "ubuntu-dev"
+vm_id        = 101
+target_node  = "pve"
+vm_template  = "ubuntu-24.04-template"
+
+# Resources
+vm_cores     = 4
+vm_memory    = 4096
+vm_disk_size = "30G"
+vm_storage   = "pve-data"
+
+# Network
+vm_network_bridge = "vmbr0"
+vm_ip_address     = "10.1.0.101/24"  # or "dhcp"
+vm_gateway        = "10.1.0.1"
+vm_dns           = "8.8.8.8"
+
+# SSH Access
+ssh_public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExample... your-email@example.com"
+
+# GPU Passthrough (optional)
+gpu_passthrough = false
+gpu_device     = "01:00"  # NVIDIA RTX 4080 SUPER
