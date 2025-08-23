@@ -1,0 +1,61 @@
+# Variables specific to Kubernetes worker nodes
+k8s_node_role: worker
+
+# Kubelet configuration for workers
+kubelet_config:
+  maxPods: "{{ max_pods_per_node }}"
+  clusterDNS: ["{{ k8s_service_subnet | ansible.utils.nthhost(10) }}"]
+  clusterDomain: "{{ k8s_dns_domain }}"
+  cgroupDriver: "systemd"
+  failSwapOn: false
+  serverTLSBootstrap: true
+
+# Worker-specific resource limits
+node_allocatable_cpu: "100m"
+node_allocatable_memory: "128Mi"
+node_allocatable_ephemeral_storage: "1Gi"
+
+# Kubelet resource reservations
+kube_reserved:
+  cpu: "100m"
+  memory: "256Mi"
+  ephemeral-storage: "1Gi"
+
+system_reserved:
+  cpu: "100m"
+  memory: "256Mi"
+  ephemeral-storage: "1Gi"
+
+# Container runtime configuration
+containerd_config:
+  version: 2
+  plugins:
+    "io.containerd.grpc.v1.cri":
+      systemd_cgroup: true
+      sandbox_image: "registry.k8s.io/pause:3.9"
+      containerd:
+        snapshotter: "overlayfs"
+        default_runtime_name: "runc"
+        runtimes:
+          runc:
+            runtime_type: "io.containerd.runc.v2"
+            options:
+              SystemdCgroup: true
+
+# Worker node labels
+node_labels:
+  node-role.kubernetes.io/worker: ""
+  node.kubernetes.io/instance-type: "{{ ansible_product_name | default('unknown') }}"
+
+# CSI driver support
+enable_csi_drivers:
+  - longhorn
+  - nfs-subdir-external-provisioner
+
+# Local storage configuration
+enable_local_storage: true
+local_storage_path: /opt/local-path-provisioner
+
+# GPU support (if applicable)
+enable_gpu_support: false
+nvidia_driver_version: "535"

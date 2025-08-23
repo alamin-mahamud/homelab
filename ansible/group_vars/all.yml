@@ -1,0 +1,73 @@
+# Global variables for all hosts
+ansible_user: ubuntu
+ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+ansible_python_interpreter: /usr/bin/python3
+
+# Kubernetes Configuration
+k8s_version: "1.29.0"
+k8s_cni_plugin: "calico"
+k8s_pod_subnet: "10.244.0.0/16"
+k8s_service_subnet: "10.96.0.0/12"
+k8s_dns_domain: "cluster.local"
+
+# Cluster Configuration
+cluster_name: "dark-knight-k8s"
+control_plane_endpoint: "{{ groups['k8s_lb'][0] if 'k8s_lb' in groups else groups['k8s_masters'][0] }}"
+control_plane_port: 6443
+
+# Container Runtime
+container_runtime: containerd
+containerd_version: "1.7.13"
+
+# Network Plugin Configuration
+calico_version: "v3.27.0"
+calico_node_image: "docker.io/calico/node:{{ calico_version }}"
+calico_cni_image: "docker.io/calico/cni:{{ calico_version }}"
+
+# LoadBalancer Configuration (MetalLB)
+metallb_version: "v0.14.3"
+metallb_ip_range: "10.2.0.100-10.2.0.150"
+
+# Storage Configuration
+longhorn_version: "v1.6.0"
+nfs_server: "{{ groups['storage'][0] if 'storage' in groups else '' }}"
+nfs_path: "/exports/k8s-storage"
+
+# Monitoring Stack
+prometheus_version: "v2.48.0"
+grafana_version: "10.2.0"
+alertmanager_version: "v0.26.0"
+
+# Ingress Configuration
+nginx_ingress_version: "v1.9.5"
+cert_manager_version: "v1.13.3"
+
+# Backup Configuration
+velero_version: "v1.12.1"
+backup_schedule: "0 2 * * *"
+
+# Security
+enable_pod_security_policies: false
+enable_network_policies: true
+audit_log_enabled: true
+
+# Node Configuration
+max_pods_per_node: 110
+kubelet_max_open_files: 1000000
+kubelet_max_user_watches: 524288
+
+# System Configuration
+disable_swap: true
+enable_ip_forward: true
+load_kernel_modules:
+  - overlay
+  - br_netfilter
+
+# Package repositories
+docker_repo_url: "https://download.docker.com/linux/ubuntu"
+k8s_repo_url: "https://pkgs.k8s.io/core:/stable:/v1.29/deb/"
+
+# Timeouts
+kubeadm_init_timeout: "10m"
+kubeadm_join_timeout: "5m"
+kubectl_wait_timeout: "300s"

@@ -1,0 +1,150 @@
+# Initialize Kubernetes cluster on first master
+---
+- name: Initialize Kubernetes cluster
+  hosts: k8s_first_master
+  become: yes
+  gather_facts: yes
+  
+  tasks:
+    - name: Check if cluster is already initialized
+      stat:
+        path: /etc/kubernetes/admin.conf
+      register: k8s_admin_conf
+
+    - name: Initialize Kubernetes cluster
+      when: not k8s_admin_conf.stat.exists
+      block:
+        - name: Create kubeadm configuration
+          template:
+            src: kubeadm-init.yaml.j2
+            dest: /tmp/kubeadm-init.yaml
+            mode: '0644'
+
+        - name: Initialize cluster with kubeadm
+          command: >
+            kubeadm init
+            --config=/tmp/kubeadm-init.yaml
+            --upload-certs
+            --v=2
+          register: kubeadm_init_result
+          timeout: "{{ kubeadm_init_timeout | default('10m') }}"
+
+        - name: Save kubeadm init output
+          copy:
+            content: "{{ kubeadm_init_result.stdout }}"
+            dest: /tmp/kubeadm-init.log
+            mode: '0644'
+
+        - name: Extract certificate key
+          shell: |
+            grep -A1 "certificate key" /tmp/kubeadm-init.log | tail -1 | awk '{print $NF}'
+          register: certificate_key
+          changed_when: false
+
+        - name: Extract join token
+          shell: |
+            grep -A2 "kubeadm join" /tmp/kubeadm-init.log | grep -v "discovery-token-ca-cert-hash" | awk '{print $5}'
+          register: join_token
+          changed_when: false
+
+        - name: Extract discovery token hash
+          shell: |
+            grep "discovery-token-ca-cert-hash" /tmp/kubeadm-init.log | awk '{print $NF}'
+          register: discovery_token_hash
+          changed_when: false
+
+        - name: Set join facts for other nodes
+          set_fact:
+            kubeadm_certificate_key: "{{ certificate_key.stdout }}"
+            kubeadm_join_token: "{{ join_token.stdout }}"
+            kubeadm_discovery_token_hash: "{{ discovery_token_hash.stdout }}"
+            cacheable: yes
+
+    - name: Configure kubectl for root user
+      block:
+        - name: Create .kube directory for root
+          file:
+            path: /root/.kube
+            state: directory
+            mode: '0755'
+
+        - name: Copy admin.conf to root's kube config
+          copy:
+            src: /etc/kubernetes/admin.conf
+            dest: /root/.kube/config
+            remote_src: yes
+            mode: '0600'
+
+    - name: Configure kubectl for ubuntu user
+      block:
+        - name: Create .kube directory for ubuntu user
+          file:
+            path: /home/ubuntu/.kube
+            state: directory
+            owner: ubuntu
+            group: ubuntu
+            mode: '0755'
+
+        - name: Copy admin.conf to ubuntu's kube config
+          copy:
+            src: /etc/kubernetes/admin.conf
+            dest: /home/ubuntu/.kube/config
+            remote_src: yes
+            owner: ubuntu
+            group: ubuntu
+            mode: '0600'
+
+    - name: Wait for all control plane components to be ready
+      shell: kubectl get nodes --kubeconfig=/etc/kubernetes/admin.conf
+      register: kubectl_nodes
+      until: kubectl_nodes.rc == 0
+      retries: 30
+      delay: 10
+
+    - name: Remove taint from master node if single-node cluster
+      when: groups['k8s_workers'] | length == 0
+      shell: |
+        kubectl taint nodes --all node-role.kubernetes.io/control-plane- --kubeconfig=/etc/kubernetes/admin.conf
+      ignore_errors: yes
+
+    - name: Display cluster information
+      debug:
+        msg: |
+          Kubernetes cluster initialized successfully!
+          
+          Join token: {{ kubeadm_join_token | default('Not available') }}
+          Certificate key: {{ kubeadm_certificate_key | default('Not available') }}
+          Discovery token hash: {{ kubeadm_discovery_token_hash | default('Not available') }}
+          
+          Control plane endpoint: {{ control_plane_endpoint }}:{{ control_plane_port }}
+
+  handlers:
+    - name: restart kubelet
+      systemd:
+        name: kubelet
+        state: restarted
+
+- name: Save cluster join information
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Save join information to file
+      copy:
+        content: |
+          # Kubernetes Cluster Join Information
+          # Generated: {{ ansible_date_time.iso8601 }}
+          
+          export KUBEADM_JOIN_TOKEN="{{ hostvars[groups['k8s_first_master'][0]]['kubeadm_join_token'] | default('') }}"
+          export KUBEADM_CERTIFICATE_KEY="{{ hostvars[groups['k8s_first_master'][0]]['kubeadm_certificate_key'] | default('') }}"
+          export KUBEADM_DISCOVERY_TOKEN_HASH="{{ hostvars[groups['k8s_first_master'][0]]['kubeadm_discovery_token_hash'] | default('') }}"
+          export CONTROL_PLANE_ENDPOINT="{{ control_plane_endpoint }}:{{ control_plane_port }}"
+          
+          # Join command for masters:
+          # kubeadm join ${CONTROL_PLANE_ENDPOINT} --token ${KUBEADM_JOIN_TOKEN} --discovery-token-ca-cert-hash ${KUBEADM_DISCOVERY_TOKEN_HASH} --control-plane --certificate-key ${KUBEADM_CERTIFICATE_KEY}
+          
+          # Join command for workers:
+          # kubeadm join ${CONTROL_PLANE_ENDPOINT} --token ${KUBEADM_JOIN_TOKEN} --discovery-token-ca-cert-hash ${KUBEADM_DISCOVERY_TOKEN_HASH}
+        dest: "./cluster-join-info.sh"
+        mode: '0600'
+      delegate_to: localhost
+      run_once: true

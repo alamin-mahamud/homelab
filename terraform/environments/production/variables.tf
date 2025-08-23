@@ -1,0 +1,163 @@
+# Proxmox Provider Variables
+variable "proxmox_api_url" {
+  description = "Proxmox API URL"
+  type        = string
+}
+
+variable "proxmox_api_token_id" {
+  description = "Proxmox API Token ID"
+  type        = string
+}
+
+variable "proxmox_api_token_secret" {
+  description = "Proxmox API Token Secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "proxmox_tls_insecure" {
+  description = "Skip TLS verification"
+  type        = bool
+  default     = false
+}
+
+variable "proxmox_node" {
+  description = "Target Proxmox node"
+  type        = string
+}
+
+# Template Configuration
+variable "vm_template_name" {
+  description = "Name of the VM template to clone"
+  type        = string
+}
+
+variable "vm_storage" {
+  description = "Storage pool for VMs"
+  type        = string
+  default     = "local-lvm"
+}
+
+# Network Configuration
+variable "network_bridge" {
+  description = "Network bridge for VMs"
+  type        = string
+  default     = "vmbr0"
+}
+
+variable "network_gateway" {
+  description = "Network gateway"
+  type        = string
+}
+
+variable "network_dns" {
+  description = "DNS servers"
+  type        = list(string)
+}
+
+variable "network_domain" {
+  description = "Network domain"
+  type        = string
+  default     = "homelab.local"
+}
+
+variable "k8s_network_cidr" {
+  description = "CIDR for Kubernetes nodes"
+  type        = string
+  default     = "10.2.0.0/24"
+}
+
+# Kubernetes Configuration
+variable "k8s_version" {
+  description = "Kubernetes version to install"
+  type        = string
+  default     = "1.29.0"
+}
+
+variable "k8s_pod_subnet" {
+  description = "Kubernetes pod network subnet"
+  type        = string
+  default     = "10.244.0.0/16"
+}
+
+variable "k8s_service_subnet" {
+  description = "Kubernetes service network subnet"
+  type        = string
+  default     = "10.96.0.0/12"
+}
+
+# Master Node Configuration
+variable "master_count" {
+  description = "Number of master nodes"
+  type        = number
+  default     = 3
+}
+
+variable "master_cores" {
+  description = "CPU cores for master nodes"
+  type        = number
+  default     = 4
+}
+
+variable "master_memory" {
+  description = "Memory for master nodes (MB)"
+  type        = number
+  default     = 8192
+}
+
+variable "master_disk_size" {
+  description = "Disk size for master nodes"
+  type        = string
+  default     = "100G"
+}
+
+# Worker Node Configuration
+variable "worker_count" {
+  description = "Number of worker nodes"
+  type        = number
+  default     = 3
+}
+
+variable "worker_cores" {
+  description = "CPU cores for worker nodes"
+  type        = number
+  default     = 4
+}
+
+variable "worker_memory" {
+  description = "Memory for worker nodes (MB)"
+  type        = number
+  default     = 16384
+}
+
+variable "worker_disk_size" {
+  description = "Disk size for worker nodes"
+  type        = string
+  default     = "200G"
+}
+
+# SSH Configuration
+variable "ssh_public_keys" {
+  description = "SSH public keys for VM access"
+  type        = list(string)
+}
+
+variable "ssh_private_key_path" {
+  description = "Path to SSH private key for Ansible"
+  type        = string
+  default     = "~/.ssh/id_ed25519"
+}
+
+# Optional Components
+variable "deploy_storage" {
+  description = "Deploy NFS storage server"
+  type        = bool
+  default     = true
+}
+
+# Environment
+variable "environment" {
+  description = "Environment name"
+  type        = string
+  default     = "production"
+}

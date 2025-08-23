@@ -1,0 +1,298 @@
+# Comprehensive Monitoring Stack Configuration
+# Optimized for AMD Ryzen 9 + RTX 4080 Homelab
+
+grafana:
+  enabled: true
+  replicas: 2
+  persistence:
+    enabled: true
+    size: 50Gi
+    storageClass: "longhorn"
+  
+  # Resource allocation for powerful dashboards
+  resources:
+    requests:
+      cpu: "1000m"
+      memory: "2Gi"
+    limits:
+      cpu: "2000m"
+      memory: "4Gi"
+  
+  # Enhanced configuration for homelab
+  grafana.ini:
+    server:
+      root_url: "https://grafana.homelab.local"
+      serve_from_sub_path: true
+    
+    security:
+      admin_user: "admin"
+      admin_password: "$__file{/etc/secrets/admin-password}"
+      allow_embedding: true
+      cookie_secure: true
+      
+    auth.anonymous:
+      enabled: true
+      org_role: "Viewer"
+      
+    dashboards:
+      default_home_dashboard_path: "/var/lib/grafana/dashboards/homelab-overview.json"
+      
+    panels:
+      enable_alpha: true
+      
+    feature_toggles:
+      enable: "publicDashboards,topnav,tempoSearch,tempoServiceGraph"
+      
+    unified_alerting:
+      enabled: true
+      ha_peers: "grafana-0.grafana:9094,grafana-1.grafana:9094"
+      
+    smtp:
+      enabled: true
+      host: "smtp.gmail.com:587"
+      user: "$__file{/etc/secrets/smtp-user}"
+      password: "$__file{/etc/secrets/smtp-password}"
+      from_address: "homelab@yourdomain.com"
+  
+  # Sidecar for dynamic dashboard provisioning
+  sidecar:
+    dashboards:
+      enabled: true
+      label: "grafana_dashboard"
+      labelValue: "1"
+      searchNamespace: "ALL"
+      folderAnnotation: "grafana_folder"
+      provider:
+        allowUiUpdates: true
+        foldersFromFilesStructure: true
+    
+    datasources:
+      enabled: true
+      label: "grafana_datasource"
+      labelValue: "1"
+      searchNamespace: "ALL"
+  
+  # Node affinity for distribution
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""
+  
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - grafana
+          topologyKey: kubernetes.io/hostname
+
+prometheus:
+  enabled: true
+  
+  prometheusSpec:
+    replicas: 3  # HA setup
+    retention: "30d"
+    retentionSize: "100GB"
+    
+    # High-performance storage
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: "longhorn"
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 200Gi
+    
+    # Resource allocation for large homelab
+    resources:
+      requests:
+        cpu: "2000m"
+        memory: "8Gi"
+      limits:
+        cpu: "4000m"
+        memory: "16Gi"
+    
+    # Enhanced scrape configuration
+    scrapeInterval: "15s"
+    evaluationInterval: "15s"
+    
+    # Additional scrape configs for homelab services
+    additionalScrapeConfigs:
+      - job_name: 'proxmox'
+        static_configs:
+          - targets: ['10.0.0.10:8006']
+        metrics_path: '/api2/prometheus/metrics'
+        params:
+          format: ['prometheus']
+        basic_auth:
+          username: 'monitoring@pam'
+          password: 'monitoring-password'
+        scheme: https
+        tls_config:
+          insecure_skip_verify: true
+      
+      - job_name: 'nvidia-gpu'
+        static_configs:
+          - targets: ['gpu-exporter:9400']
+        scrape_interval: 5s
+        
+      - job_name: 'smart-metrics'
+        static_configs:
+          - targets: ['smart-exporter:9633']
+        
+      - job_name: 'unifi-controller'
+        static_configs:
+          - targets: ['unifi-exporter:9130']
+        
+      - job_name: 'pihole'
+        static_configs:
+          - targets: ['pihole-exporter:9617']
+        
+      - job_name: 'home-assistant'
+        static_configs:
+          - targets: ['home-assistant:8123']
+        metrics_path: '/api/prometheus'
+        bearer_token: 'your-home-assistant-token'
+  
+  # Node distribution
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""
+    
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - prometheus
+        topologyKey: kubernetes.io/hostname
+
+alertmanager:
+  enabled: true
+  
+  alertmanagerSpec:
+    replicas: 3
+    retention: "120h"
+    
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: "longhorn"
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+    
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "512Mi"
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
+
+# Node Exporter for system metrics
+nodeExporter:
+  enabled: true
+  
+  # Deploy on all nodes including masters
+  hostNetwork: true
+  hostPID: true
+  
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+
+# GPU metrics for RTX 4080
+prometheus-nvidia-gpu-exporter:
+  enabled: true
+  image:
+    repository: "mindprince/nvidia_gpu_prometheus_exporter"
+    tag: "0.1"
+  
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+      nvidia.com/gpu: 1
+  
+  nodeSelector:
+    nvidia.com/gpu.present: "true"
+
+# Loki for log aggregation
+loki:
+  enabled: true
+  
+  loki:
+    commonConfig:
+      replication_factor: 3
+    
+    storage:
+      type: 'filesystem'
+      filesystem:
+        chunks_directory: '/var/loki/chunks'
+        rules_directory: '/var/loki/rules'
+    
+    persistence:
+      enabled: true
+      size: 100Gi
+      storageClass: "longhorn"
+    
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+      limits:
+        cpu: "1000m"
+        memory: "2Gi"
+
+# Promtail for log collection
+promtail:
+  enabled: true
+  
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+
+# Tempo for tracing
+tempo:
+  enabled: true
+  
+  tempo:
+    retention: "24h"
+    
+    storage:
+      trace:
+        backend: local
+        local:
+          path: /var/tempo/traces
+    
+    persistence:
+      enabled: true
+      size: 50Gi
+      storageClass: "longhorn"
+    
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+      limits:
+        cpu: "1000m"
+        memory: "2Gi"

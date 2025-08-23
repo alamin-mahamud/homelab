@@ -1,0 +1,81 @@
+# Kubeadm configuration for cluster initialization
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: {{ ansible_default_ipv4.address }}
+  bindPort: {{ api_server_bind_port | default(6443) }}
+nodeRegistration:
+  criSocket: unix:///run/containerd/containerd.sock
+  kubeletExtraArgs:
+    cgroup-driver: "systemd"
+    container-runtime-endpoint: "unix:///run/containerd/containerd.sock"
+---
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: ClusterConfiguration
+kubernetesVersion: "v{{ k8s_version }}"
+clusterName: "{{ cluster_name | default('kubernetes') }}"
+controlPlaneEndpoint: "{{ control_plane_endpoint }}:{{ control_plane_port }}"
+networking:
+  serviceSubnet: "{{ k8s_service_subnet }}"
+  podSubnet: "{{ k8s_pod_subnet }}"
+  dnsDomain: "{{ k8s_dns_domain }}"
+apiServer:
+  advertiseAddress: {{ ansible_default_ipv4.address }}
+  bindPort: {{ api_server_bind_port | default(6443) }}
+  certSANs:
+{% for san in api_server_cert_sans | default([]) %}
+    - "{{ san }}"
+{% endfor %}
+    - "{{ ansible_default_ipv4.address }}"
+    - "{{ ansible_hostname }}"
+{% if groups['k8s_lb'] is defined and groups['k8s_lb'] | length > 0 %}
+    - "{{ hostvars[groups['k8s_lb'][0]]['ansible_default_ipv4']['address'] }}"
+{% endif %}
+  extraArgs:
+    authorization-mode: "Node,RBAC"
+    enable-admission-plugins: "NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,NodeRestriction,ResourceQuota"
+    audit-log-maxage: "30"
+    audit-log-maxbackup: "3"
+    audit-log-maxsize: "100"
+    audit-log-path: "/var/log/audit.log"
+    service-cluster-ip-range: "{{ k8s_service_subnet }}"
+{% if feature_gates | default({}) | length > 0 %}
+    feature-gates: "{% for key, value in feature_gates.items() %}{{ key }}={{ value }}{% if not loop.last %},{% endif %}{% endfor %}"
+{% endif %}
+controllerManager:
+  bindAddress: "0.0.0.0"
+  extraArgs:
+    bind-address: "0.0.0.0"
+    cluster-cidr: "{{ k8s_pod_subnet }}"
+    service-cluster-ip-range: "{{ k8s_service_subnet }}"
+    allocate-node-cidrs: "true"
+scheduler:
+  bindAddress: "0.0.0.0"
+  extraArgs:
+    bind-address: "0.0.0.0"
+etcd:
+  local:
+    dataDir: "{{ etcd_data_dir | default('/var/lib/etcd') }}"
+    extraArgs:
+      listen-metrics-urls: "http://0.0.0.0:2381"
+dns:
+  type: CoreDNS
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+cgroupDriver: systemd
+failSwapOn: false
+serverTLSBootstrap: true
+maxPods: {{ max_pods_per_node | default(110) }}
+clusterDNS:
+  - "{{ k8s_service_subnet | ansible.utils.nthhost(10) }}"
+clusterDomain: "{{ k8s_dns_domain }}"
+containerRuntimeEndpoint: "unix:///run/containerd/containerd.sock"
+resolvConf: "/run/systemd/resolve/resolv.conf"
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+mode: "iptables"
+clusterCIDR: "{{ k8s_pod_subnet }}"
+bindAddress: "0.0.0.0"
+metricsBindAddress: "0.0.0.0:10249"

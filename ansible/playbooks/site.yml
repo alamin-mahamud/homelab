@@ -1,0 +1,45 @@
+# Main playbook for complete cluster deployment
+---
+- name: Deploy Complete Kubernetes Homelab
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Display deployment information
+      debug:
+        msg: |
+          Starting Dark Knight Homelab Kubernetes Deployment
+          ================================================
+          Masters: {{ groups['k8s_masters'] | length }}
+          Workers: {{ groups['k8s_workers'] | length }}
+          LoadBalancer: {{ groups['k8s_lb'] | length }}
+          Control Plane: {{ control_plane_endpoint }}:{{ control_plane_port }}
+
+# Phase 1: System preparation
+- import_playbook: system/prepare-nodes.yml
+- import_playbook: system/install-container-runtime.yml
+
+# Phase 2: Load balancer setup (if present)
+- import_playbook: loadbalancer/setup-haproxy.yml
+  when: "'k8s_lb' in groups and groups['k8s_lb'] | length > 0"
+
+# Phase 3: Kubernetes cluster initialization
+- import_playbook: kubernetes/init-cluster.yml
+- import_playbook: kubernetes/join-masters.yml
+- import_playbook: kubernetes/join-workers.yml
+
+# Phase 4: Cluster configuration
+- import_playbook: kubernetes/setup-cni.yml
+- import_playbook: kubernetes/setup-storage.yml
+- import_playbook: kubernetes/setup-ingress.yml
+- import_playbook: kubernetes/setup-monitoring.yml
+
+# Phase 5: Post-deployment verification
+- import_playbook: verification/cluster-health.yml
+
+# Phase 6: Optional components
+- import_playbook: optional/setup-backup.yml
+  when: enable_backups | default(false)
+- import_playbook: optional/setup-logging.yml
+  when: enable_logging | default(false)
+- import_playbook: optional/setup-registry.yml
+  when: enable_registry | default(false)

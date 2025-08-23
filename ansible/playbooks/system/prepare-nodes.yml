@@ -1,0 +1,186 @@
+# System preparation for Kubernetes nodes
+---
+- name: Prepare all nodes for Kubernetes
+  hosts: k8s_cluster
+  become: yes
+  gather_facts: yes
+  
+  pre_tasks:
+    - name: Verify connectivity
+      ping:
+      
+    - name: Update package cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      
+  tasks:
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - software-properties-common
+          - net-tools
+          - vim
+          - htop
+          - iotop
+          - jq
+          - tree
+          - unzip
+          - wget
+          - open-iscsi
+          - nfs-common
+          - socat
+          - conntrack
+        state: present
+        update_cache: yes
+
+    - name: Disable swap permanently
+      when: disable_swap
+      block:
+        - name: Disable swap immediately
+          command: swapoff -a
+          
+        - name: Remove swap entries from fstab
+          lineinfile:
+            path: /etc/fstab
+            regexp: '.*swap.*'
+            state: absent
+
+    - name: Configure kernel modules
+      block:
+        - name: Create modules-load.d directory
+          file:
+            path: /etc/modules-load.d
+            state: directory
+            mode: '0755'
+            
+        - name: Load required kernel modules
+          modprobe:
+            name: "{{ item }}"
+          loop: "{{ load_kernel_modules }}"
+          
+        - name: Configure modules to load at boot
+          copy:
+            content: |
+              {% for module in load_kernel_modules %}
+              {{ module }}
+              {% endfor %}
+            dest: /etc/modules-load.d/k8s.conf
+            mode: '0644'
+
+    - name: Configure sysctl parameters
+      block:
+        - name: Set sysctl parameters for Kubernetes
+          sysctl:
+            name: "{{ item.key }}"
+            value: "{{ item.value }}"
+            state: present
+            reload: yes
+          loop:
+            - { key: 'net.bridge.bridge-nf-call-iptables', value: '1' }
+            - { key: 'net.bridge.bridge-nf-call-ip6tables', value: '1' }
+            - { key: 'net.ipv4.ip_forward', value: '1' }
+            - { key: 'net.ipv6.conf.all.forwarding', value: '1' }
+            - { key: 'vm.overcommit_memory', value: '1' }
+            - { key: 'kernel.panic', value: '10' }
+            - { key: 'kernel.panic_on_oops', value: '1' }
+            - { key: 'fs.inotify.max_user_instances', value: '8192' }
+            - { key: 'fs.inotify.max_user_watches', value: '524288' }
+            
+        - name: Create sysctl configuration file
+          copy:
+            content: |
+              # Kubernetes networking
+              net.bridge.bridge-nf-call-iptables  = 1
+              net.bridge.bridge-nf-call-ip6tables = 1
+              net.ipv4.ip_forward                  = 1
+              net.ipv6.conf.all.forwarding         = 1
+              
+              # Performance tuning
+              vm.overcommit_memory = 1
+              kernel.panic = 10
+              kernel.panic_on_oops = 1
+              
+              # File system limits
+              fs.inotify.max_user_instances = 8192
+              fs.inotify.max_user_watches = 524288
+            dest: /etc/sysctl.d/99-k8s.conf
+            mode: '0644'
+
+    - name: Configure systemd-resolved (Ubuntu 22.04+)
+      when: ansible_distribution == "Ubuntu" and ansible_distribution_version is version("22.04", ">=")
+      block:
+        - name: Configure systemd-resolved
+          copy:
+            content: |
+              [Resolve]
+              DNS=8.8.8.8 1.1.1.1
+              FallbackDNS=8.8.4.4 1.0.0.1
+              DNSSEC=no
+              DNSOverTLS=no
+            dest: /etc/systemd/resolved.conf
+            mode: '0644'
+          notify: restart systemd-resolved
+
+    - name: Set hostname
+      hostname:
+        name: "{{ inventory_hostname }}"
+        
+    - name: Update /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^127\.0\.1\.1'
+        line: "127.0.1.1 {{ inventory_hostname }}.{{ k8s_dns_domain | default('cluster.local') }} {{ inventory_hostname }}"
+        
+    - name: Add cluster nodes to /etc/hosts
+      lineinfile:
+        path: /etc/hosts
+        line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{ item }}.{{ k8s_dns_domain | default('cluster.local') }} {{ item }}"
+        regexp: "^{{ hostvars[item]['ansible_default_ipv4']['address'] }}"
+      loop: "{{ groups['k8s_cluster'] }}"
+      when: hostvars[item]['ansible_default_ipv4'] is defined
+
+    - name: Configure systemd limits
+      copy:
+        content: |
+          [Manager]
+          DefaultLimitNOFILE=1048576
+          DefaultLimitNPROC=1048576
+        dest: /etc/systemd/system.conf.d/k8s.conf
+        mode: '0644'
+      notify: reload systemd
+
+    - name: Set timezone
+      timezone:
+        name: UTC
+
+    - name: Enable necessary services
+      systemd:
+        name: "{{ item }}"
+        enabled: yes
+        state: started
+      loop:
+        - systemd-resolved
+        - systemd-timesyncd
+      ignore_errors: yes
+
+  handlers:
+    - name: restart systemd-resolved
+      systemd:
+        name: systemd-resolved
+        state: restarted
+        
+    - name: reload systemd
+      systemd:
+        daemon_reload: yes
+
+  post_tasks:
+    - name: Reboot if required
+      reboot:
+        reboot_timeout: 600
+      when: ansible_reboot_required | default(false)

@@ -1,0 +1,447 @@
+# Homelab Services Stack
+# Optimized for distributed deployment across cluster
+
+version: '3.8'
+
+services:
+  # Home Assistant - Smart Home Hub
+  home-assistant:
+    image: ghcr.io/home-assistant/home-assistant:2024.1
+    container_name: home-assistant
+    privileged: true
+    restart: unless-stopped
+    environment:
+      - TZ=UTC
+    volumes:
+      - home-assistant-config:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    networks:
+      - homelab-network
+    ports:
+      - "8123:8123"
+    deploy:
+      placement:
+        constraints:
+          - node.labels.homelab.role==services
+      resources:
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+        limits:
+          cpus: '2.0'
+          memory: 4G
+
+  # Pi-hole - Network-wide Ad Blocking
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    restart: unless-stopped
+    environment:
+      - TZ=UTC
+      - WEBPASSWORD=secure-password-here
+      - PIHOLE_DNS_=1.1.1.1;8.8.8.8
+      - DNSSEC=true
+      - DNS_BOGUS_PRIV=true
+      - DNS_FQDN_REQUIRED=true
+    volumes:
+      - pihole-config:/etc/pihole
+      - pihole-dnsmasq:/etc/dnsmasq.d
+    networks:
+      homelab-network:
+        ipv4_address: 172.20.0.10
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "80:80/tcp"
+    deploy:
+      placement:
+        constraints:
+          - node.labels.homelab.role==infrastructure
+      resources:
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+        limits:
+          cpus: '1.0'
+          memory: 1G
+
+  # Unifi Controller - Network Management
+  unifi-controller:
+    image: lscr.io/linuxserver/unifi-controller:latest
+    container_name: unifi-controller
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+      - MEM_LIMIT=2048
+      - MEM_STARTUP=1024
+    volumes:
+      - unifi-config:/config
+    networks:
+      - homelab-network
+    ports:
+      - "3478:3478/udp"
+      - "10001:10001/udp"
+      - "8080:8080"
+      - "8443:8443"
+      - "1900:1900/udp"
+      - "8843:8843"
+      - "8880:8880"
+      - "6789:6789"
+      - "5514:5514/udp"
+    deploy:
+      placement:
+        constraints:
+          - node.labels.homelab.role==network
+      resources:
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+        limits:
+          cpus: '2.0'
+          memory: 4G
+
+  # Nextcloud - Personal Cloud Storage
+  nextcloud:
+    image: nextcloud:latest
+    container_name: nextcloud
+    restart: unless-stopped
+    environment:
+      - NEXTCLOUD_ADMIN_USER=admin
+      - NEXTCLOUD_ADMIN_PASSWORD=secure-admin-password
+      - NEXTCLOUD_TRUSTED_DOMAINS=nextcloud.homelab.local
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_USER=nextcloud
+      - POSTGRES_PASSWORD=nextcloud-db-password
+      - POSTGRES_HOST=nextcloud-db
+      - REDIS_HOST=nextcloud-redis
+    volumes:
+      - nextcloud-data:/var/www/html
+      - nextcloud-apps:/var/www/html/custom_apps
+      - nextcloud-config:/var/www/html/config
+      - nextcloud-theme:/var/www/html/themes
+    networks:
+      - homelab-network
+    ports:
+      - "8081:80"
+    depends_on:
+      - nextcloud-db
+      - nextcloud-redis
+    deploy:
+      placement:
+        constraints:
+          - node.labels.homelab.role==storage
+      resources:
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+        limits:
+          cpus: '2.0'
+          memory: 4G
+
+  # PostgreSQL for Nextcloud
+  nextcloud-db:
+    image: postgres:15-alpine
+    container_name: nextcloud-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=nextcloud
+      - POSTGRES_USER=nextcloud
+      - POSTGRES_PASSWORD=nextcloud-db-password
+    volumes:
+      - nextcloud-db-data:/var/lib/postgresql/data
+    networks:
+      - homelab-network
+    deploy:
+      placement:
+        constraints:
+          - node.labels.homelab.role==storage
+      resources:
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+        limits:
+          cpus: '1.0'
+          memory: 2G
+
+  # Redis for Nextcloud
+  nextcloud-redis:
+    image: redis:7-alpine
+    container_name: nextcloud-redis
+    restart: unless-stopped
+    command: redis-server --requirepass redis-password
+    volumes:
+      - nextcloud-redis-data:/data
+    networks:
+      - homelab-network
+    deploy:
+      placement:
+        constraints:
+          - node.labels.homelab.role==storage
+      resources:
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # Plex Media Server
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+      - VERSION=docker
+      - PLEX_CLAIM=claim-token-here
+    volumes:
+      - plex-config:/config
+      - plex-media:/media
+      - plex-transcode:/transcode
+    networks:
+      - homelab-network
+    ports:
+      - "32400:32400/tcp"
+      - "3005:3005/tcp"
+      - "8324:8324/tcp"
+      - "32469:32469/tcp"
+      - "1900:1900/udp"
+      - "32410:32410/udp"
+      - "32412:32412/udp"
+      - "32413:32413/udp"
+      - "32414:32414/udp"
+    devices:
+      - /dev/dri:/dev/dri  # Hardware transcoding
+    deploy:
+      placement:
+        constraints:
+          - node.labels.homelab.role==media
+      resources:
+        reservations:
+          cpus: '2.0'
+          memory: 4G
+        limits:
+          cpus: '8.0'
+          memory: 16G
+
+  # Jellyfin - Alternative Media Server
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+    volumes:
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - jellyfin-media:/media
+    networks:
+      - homelab-network
+    ports:
+      - "8096:8096"
+      - "8920:8920"
+      - "7359:7359/udp"
+      - "1901:1900/udp"
+    devices:
+      - /dev/dri:/dev/dri
+    deploy:
+      placement:
+        constraints:
+          - node.labels.homelab.role==media
+      resources:
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+        limits:
+          cpus: '4.0'
+          memory: 8G
+
+  # Portainer - Container Management
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    command: -H unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    networks:
+      - homelab-network
+    ports:
+      - "9000:9000"
+      - "8000:8000"
+    deploy:
+      placement:
+        constraints:
+          - node.labels.homelab.role==management
+      resources:
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+        limits:
+          cpus: '1.0'
+          memory: 1G
+
+  # Traefik - Reverse Proxy
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.email=admin@homelab.local
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-certs:/letsencrypt
+    networks:
+      - homelab-network
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8082:8080"
+    deploy:
+      placement:
+        constraints:
+          - node.labels.homelab.role==gateway
+      resources:
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+        limits:
+          cpus: '1.0'
+          memory: 1G
+
+  # NVIDIA GPU Monitor
+  nvidia-exporter:
+    image: mindprince/nvidia_gpu_prometheus_exporter:0.1
+    container_name: nvidia-exporter
+    restart: unless-stopped
+    ports:
+      - "9400:9400"
+    devices:
+      - /dev/nvidiactl:/dev/nvidiactl
+      - /dev/nvidia0:/dev/nvidia0
+    volumes:
+      - /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1:/usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1:ro
+    networks:
+      - homelab-network
+    deploy:
+      placement:
+        constraints:
+          - node.labels.homelab.gpu==true
+      resources:
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+        limits:
+          cpus: '0.2'
+          memory: 256M
+
+  # Smart Disk Monitor
+  smart-exporter:
+    image: prometheuscommunity/smartctl-exporter:latest
+    container_name: smart-exporter
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "9633:9633"
+    networks:
+      - homelab-network
+    deploy:
+      placement:
+        constraints:
+          - node.labels.homelab.role==monitoring
+      resources:
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+        limits:
+          cpus: '0.2'
+          memory: 256M
+
+volumes:
+  home-assistant-config:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=10.2.0.50,rw,noatime,rsize=8192,wsize=8192,tcp,timeo=14
+      device: ":/exports/home-assistant"
+
+  pihole-config:
+    driver: local
+  pihole-dnsmasq:
+    driver: local
+
+  unifi-config:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=10.2.0.50,rw,noatime,rsize=8192,wsize=8192,tcp,timeo=14
+      device: ":/exports/unifi"
+
+  nextcloud-data:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=10.2.0.50,rw,noatime,rsize=8192,wsize=8192,tcp,timeo=14
+      device: ":/exports/nextcloud/data"
+
+  nextcloud-apps:
+    driver: local
+  nextcloud-config:
+    driver: local
+  nextcloud-theme:
+    driver: local
+  nextcloud-db-data:
+    driver: local
+  nextcloud-redis-data:
+    driver: local
+
+  plex-config:
+    driver: local
+  plex-media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=10.2.0.50,rw,noatime,rsize=8192,wsize=8192,tcp,timeo=14
+      device: ":/exports/media"
+  plex-transcode:
+    driver: local
+
+  jellyfin-config:
+    driver: local
+  jellyfin-cache:
+    driver: local
+  jellyfin-media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=10.2.0.50,rw,noatime,rsize=8192,wsize=8192,tcp,timeo=14
+      device: ":/exports/media"
+
+  portainer-data:
+    driver: local
+  traefik-certs:
+    driver: local
+
+networks:
+  homelab-network:
+    driver: overlay
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+          gateway: 172.20.0.1
