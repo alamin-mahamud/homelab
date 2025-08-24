@@ -2,27 +2,26 @@
 
 This directory contains the complete Infrastructure as Code (IaC) deployment for a production-grade HomeLab environment using Kubernetes, Proxmox, and Raspberry Pi.
 
-## 🏗️ Architecture Overview
+## 🏗️ **DEPLOYED ARCHITECTURE** ✅
 
-### Infrastructure Components
+### Infrastructure Components (OPERATIONAL)
 - **Proxmox VE**: Hypervisor hosting VM infrastructure
-- **Kubernetes Cluster**: 3 masters + 11 workers with HA control plane
-- **Raspberry Pi**: Lightweight services (DNS, MQTT, monitoring)
-- **Storage**: Longhorn distributed storage + NFS
-- **Networking**: MetalLB load balancer + NGINX ingress
-- **Monitoring**: Prometheus + Grafana + AlertManager
+- **Kubernetes Cluster**: 1 master + 6 workers (7 total nodes)
+- **Raspberry Pi**: Lightweight auxiliary services
+- **Storage**: Longhorn distributed storage (3 replicas)
+- **Networking**: MetalLB load balancer with IP pool 10.1.1.100-150
+- **Monitoring**: Prometheus + Grafana operational
 
-### Network Layout
+### Network Layout (LIVE)
 - **Management Network**: 10.1.0.0/24
   - Proxmox: 10.1.0.0
-  - Raspberry Pi: 10.1.0.1
-  - Jump Host: 10.7.0.1 (current host)
+  - Raspberry Pi: 10.1.0.1 (pve2)
+  - Jump Host: 10.7.0.1 (current deployment host)
 - **Kubernetes Network**: 10.1.1.0/24
-  - HAProxy LB: 10.1.1.9-10
-  - Masters: 10.1.1.11-13
-  - Workers: 10.1.1.21-31
-  - Services: 10.1.1.100-150
-- **Pod Network**: 10.244.0.0/16
+  - Master: k8s-master-01 (10.1.1.11)
+  - Workers: k8s-worker-01 to k8s-worker-07 (10.1.1.21-27)
+  - LoadBalancer Services: 10.1.1.100-150
+- **Pod Network**: 10.244.0.0/16 (Flannel CNI)
 - **Service Network**: 10.96.0.0/12
 
 ## 🚀 Quick Start
