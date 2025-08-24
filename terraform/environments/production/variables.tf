@@ -23,8 +23,14 @@ variable "proxmox_tls_insecure" {
   default     = true
 }
 
+variable "proxmox_nodes" {
+  description = "List of Proxmox nodes for VM distribution"
+  type        = list(string)
+  default     = ["pve", "rpi-node"]
+}
+
 variable "proxmox_node" {
-  description = "Target Proxmox node"
+  description = "Primary Proxmox node (for backward compatibility)"
   type        = string
   default     = "pve"
 }

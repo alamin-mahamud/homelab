@@ -6,7 +6,7 @@ resource "proxmox_vm_qemu" "storage_server" {
 
   name        = "storage-server"
   vmid        = 1300
-  target_node = var.proxmox_node
+  target_node = var.proxmox_nodes[0]  # Storage server on x86 for performance
   clone       = var.vm_template_name
   full_clone  = true
   
@@ -23,25 +23,22 @@ resource "proxmox_vm_qemu" "storage_server" {
   bootdisk = "scsi0"
   boot     = "order=scsi0"
 
-  disks {
-    scsi {
-      scsi0 {
-        disk {
-          size    = "50G"
-          storage = var.vm_storage
-          iothread = true
-          discard = true
-        }
-      }
-      scsi1 {
-        disk {
-          size    = "500G"
-          storage = var.vm_storage
-          iothread = true
-          discard = true
-        }
-      }
-    }
+  disk {
+    slot    = 0
+    size    = "50G"
+    type    = "scsi"
+    storage = var.vm_storage
+    iothread = 1
+    discard = "on"
+  }
+  
+  disk {
+    slot    = 1
+    size    = "500G"
+    type    = "scsi"
+    storage = var.vm_storage
+    iothread = 1
+    discard = "on"
   }
 
   network {
@@ -70,7 +67,7 @@ resource "proxmox_vm_qemu" "storage_server" {
 resource "proxmox_vm_qemu" "gitlab" {
   name        = "gitlab-server"
   vmid        = 1310
-  target_node = var.proxmox_node
+  target_node = var.proxmox_nodes[0]  # GitLab on x86 for performance
   clone       = var.vm_template_name
   full_clone  = true
   
@@ -87,17 +84,13 @@ resource "proxmox_vm_qemu" "gitlab" {
   bootdisk = "scsi0"
   boot     = "order=scsi0"
 
-  disks {
-    scsi {
-      scsi0 {
-        disk {
-          size    = "100G"
-          storage = var.vm_storage
-          iothread = true
-          discard = true
-        }
-      }
-    }
+  disk {
+    slot    = 0
+    size    = "100G"
+    type    = "scsi"
+    storage = var.vm_storage
+    iothread = 1
+    discard = "on"
   }
 
   network {
@@ -126,7 +119,7 @@ resource "proxmox_vm_qemu" "gitlab" {
 resource "proxmox_vm_qemu" "monitoring" {
   name        = "monitoring-server"
   vmid        = 1320
-  target_node = var.proxmox_node
+  target_node = length(var.proxmox_nodes) > 1 ? var.proxmox_nodes[1] : var.proxmox_nodes[0]  # Monitoring on Raspberry Pi if available
   clone       = var.vm_template_name
   full_clone  = true
   
@@ -135,25 +128,21 @@ resource "proxmox_vm_qemu" "monitoring" {
 
   agent    = 1
   os_type  = "cloud-init"
-  cores    = 4
+  cores    = 2  # Reduced for Pi node
   sockets  = 1
   cpu      = "host"
-  memory   = 6144
+  memory   = 4096  # Reduced for Pi node
   scsihw   = "virtio-scsi-single"
   bootdisk = "scsi0"
   boot     = "order=scsi0"
 
-  disks {
-    scsi {
-      scsi0 {
-        disk {
-          size    = "100G"
-          storage = var.vm_storage
-          iothread = true
-          discard = true
-        }
-      }
-    }
+  disk {
+    slot    = 0
+    size    = "50G"
+    type    = "scsi"
+    storage = var.vm_storage
+    iothread = 1
+    discard = "on"
   }
 
   network {
@@ -182,7 +171,7 @@ resource "proxmox_vm_qemu" "monitoring" {
 resource "proxmox_vm_qemu" "database" {
   name        = "database-server"
   vmid        = 1330
-  target_node = var.proxmox_node
+  target_node = var.proxmox_nodes[0]  # Database on x86 for performance
   clone       = var.vm_template_name
   full_clone  = true
   
@@ -199,25 +188,22 @@ resource "proxmox_vm_qemu" "database" {
   bootdisk = "scsi0"
   boot     = "order=scsi0"
 
-  disks {
-    scsi {
-      scsi0 {
-        disk {
-          size    = "50G"
-          storage = var.vm_storage
-          iothread = true
-          discard = true
-        }
-      }
-      scsi1 {
-        disk {
-          size    = "200G"
-          storage = var.vm_storage
-          iothread = true
-          discard = true
-        }
-      }
-    }
+  disk {
+    slot    = 0
+    size    = "50G"
+    type    = "scsi"
+    storage = var.vm_storage
+    iothread = 1
+    discard = "on"
+  }
+  
+  disk {
+    slot    = 1
+    size    = "200G"
+    type    = "scsi"
+    storage = var.vm_storage
+    iothread = 1
+    discard = "on"
   }
 
   network {
