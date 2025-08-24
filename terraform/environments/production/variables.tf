@@ -2,15 +2,17 @@
 variable "proxmox_api_url" {
   description = "Proxmox API URL"
   type        = string
+  default     = "https://10.1.0.0:8006/api2/json"
 }
 
-variable "proxmox_api_token_id" {
-  description = "Proxmox API Token ID"
+variable "proxmox_user" {
+  description = "Proxmox user"
   type        = string
+  default     = "root@pam"
 }
 
-variable "proxmox_api_token_secret" {
-  description = "Proxmox API Token Secret"
+variable "proxmox_password" {
+  description = "Proxmox password"
   type        = string
   sensitive   = true
 }
@@ -18,18 +20,20 @@ variable "proxmox_api_token_secret" {
 variable "proxmox_tls_insecure" {
   description = "Skip TLS verification"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "proxmox_node" {
   description = "Target Proxmox node"
   type        = string
+  default     = "pve"
 }
 
 # Template Configuration
 variable "vm_template_name" {
   description = "Name of the VM template to clone"
   type        = string
+  default     = "ubuntu-cloud-template"
 }
 
 variable "vm_storage" {
@@ -48,11 +52,13 @@ variable "network_bridge" {
 variable "network_gateway" {
   description = "Network gateway"
   type        = string
+  default     = "10.1.1.1"
 }
 
 variable "network_dns" {
   description = "DNS servers"
   type        = list(string)
+  default     = ["10.1.0.1", "1.1.1.1", "8.8.8.8"]
 }
 
 variable "network_domain" {
@@ -64,7 +70,7 @@ variable "network_domain" {
 variable "k8s_network_cidr" {
   description = "CIDR for Kubernetes nodes"
   type        = string
-  default     = "10.2.0.0/24"
+  default     = "10.1.1.0/24"
 }
 
 # Kubernetes Configuration
@@ -115,7 +121,7 @@ variable "master_disk_size" {
 variable "worker_count" {
   description = "Number of worker nodes"
   type        = number
-  default     = 3
+  default     = 11
 }
 
 variable "worker_cores" {
@@ -140,12 +146,13 @@ variable "worker_disk_size" {
 variable "ssh_public_keys" {
   description = "SSH public keys for VM access"
   type        = list(string)
+  default     = []
 }
 
 variable "ssh_private_key_path" {
   description = "Path to SSH private key for Ansible"
   type        = string
-  default     = "~/.ssh/id_ed25519"
+  default     = "~/.ssh/homelab_rsa"
 }
 
 # Optional Components

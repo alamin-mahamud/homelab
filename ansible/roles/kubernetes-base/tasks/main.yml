@@ -1,0 +1,53 @@
+---
+# Kubernetes Base Installation Role
+
+- name: Add Kubernetes GPG key
+  apt_key:
+    url: https://pkgs.k8s.io/core:/stable:/v{{ k8s_version | regex_search('^[0-9]+\.[0-9]+') }}/deb/Release.key
+    state: present
+
+- name: Add Kubernetes repository
+  apt_repository:
+    repo: "deb https://pkgs.k8s.io/core:/stable:/v{{ k8s_version | regex_search('^[0-9]+\.[0-9]+') }}/deb/ /"
+    state: present
+
+- name: Install Kubernetes packages
+  apt:
+    name:
+      - "kubelet={{ k8s_version }}-*"
+      - "kubeadm={{ k8s_version }}-*"
+      - "kubectl={{ k8s_version }}-*"
+    state: present
+    update_cache: yes
+
+- name: Hold Kubernetes packages
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  with_items:
+    - kubelet
+    - kubeadm
+    - kubectl
+
+- name: Configure kubelet extra args
+  copy:
+    content: |
+      KUBELET_EXTRA_ARGS="--cgroup-driver=systemd --container-runtime=remote --container-runtime-endpoint=unix:///run/containerd/containerd.sock"
+    dest: /etc/default/kubelet
+
+- name: Enable and start kubelet
+  systemd:
+    name: kubelet
+    enabled: yes
+    state: started
+    daemon_reload: yes
+
+- name: Configure kubectl autocompletion for ubuntu user
+  lineinfile:
+    path: /home/ubuntu/.bashrc
+    line: "{{ item }}"
+    state: present
+  with_items:
+    - "source <(kubectl completion bash)"
+    - "alias k=kubectl"
+    - "complete -F __start_kubectl k"

@@ -1,0 +1,49 @@
+global
+    log         127.0.0.1 local0
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    maxconn     4000
+    user        haproxy
+    group       haproxy
+    daemon
+    
+    # SSL/TLS settings
+    ssl-default-bind-ciphers ECDHE+AESGCM:ECDHE+AES256:ECDHE+AES128:!PSK:!DHE:!RSA:!DSS:!aNull:!MD5
+    ssl-default-bind-options no-sslv3 no-tlsv10 no-tlsv11
+    tune.ssl.default-dh-param 2048
+
+defaults
+    mode                    tcp
+    log                     global
+    option                  tcplog
+    option                  dontlognull
+    option                  redispatch
+    retries                 3
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1h
+    timeout server          1h
+    timeout check           10s
+    maxconn                 3000
+
+# Kubernetes API Server Load Balancing
+frontend k8s-api
+    bind *:6443
+    mode tcp
+    option tcplog
+    default_backend k8s-api-backend
+
+backend k8s-api-backend
+    mode tcp
+    option tcp-check
+    balance roundrobin
+{% for host in groups['k8s_masters'] %}
+    server {{ host }} {{ hostvars[host]['ansible_host'] }}:6443 check fall 3 rise 2
+{% endfor %}
+
+# Statistics
+stats enable
+stats uri /stats
+stats realm HAProxy\ Statistics
+stats auth admin:admin123
+stats refresh 30s

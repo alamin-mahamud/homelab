@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pihole
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pihole
+  template:
+    metadata:
+      labels:
+        app: pihole
+    spec:
+      containers:
+      - name: pihole
+        image: pihole/pihole:latest
+        ports:
+        - containerPort: 80
+          name: web
+        - containerPort: 53
+          name: dns-tcp
+          protocol: TCP
+        - containerPort: 53
+          name: dns-udp
+          protocol: UDP
+        env:
+        - name: TZ
+          value: "UTC"
+        - name: WEBPASSWORD
+          value: "admin123"
+        volumeMounts:
+        - name: config
+          mountPath: /etc/pihole
+        - name: dnsmasq
+          mountPath: /etc/dnsmasq.d
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: pihole-config-pvc
+      - name: dnsmasq
+        persistentVolumeClaim:
+          claimName: pihole-dnsmasq-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pihole-web
+  namespace: homelab
+spec:
+  type: LoadBalancer
+  selector:
+    app: pihole
+  ports:
+  - port: 80
+    targetPort: 80
+    name: web
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pihole-dns
+  namespace: homelab
+spec:
+  type: LoadBalancer
+  selector:
+    app: pihole
+  ports:
+  - port: 53
+    targetPort: 53
+    protocol: TCP
+    name: dns-tcp
+  - port: 53
+    targetPort: 53
+    protocol: UDP
+    name: dns-udp
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pihole-config-pvc
+  namespace: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn-fast
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pihole-dnsmasq-pvc
+  namespace: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn-fast
+  resources:
+    requests:
+      storage: 5Gi
