@@ -1,87 +1,59 @@
-# Dark Knight Homelab Documentation
+# Homelab Documentation
 
-This directory contains comprehensive documentation for the Dark Knight homelab infrastructure project.
+Documentation for the self-hosting Kubernetes platform running on Proxmox.
 
-## 📚 Documentation Structure
+## Quick Links
 
-### 🚀 Getting Started
-- [Quick Start Guide](./quick-start.md) - Get up and running in 30 minutes
-- [Prerequisites](./prerequisites.md) - System requirements and dependencies
-- [Installation Guide](./installation/) - Step-by-step deployment instructions
+| Document | Purpose |
+|----------|---------|
+| **[Architecture](./architecture.md)** | System design, network topology, and technology stack |
+| **[Load Balancing](./load-balancing-architecture.md)** | Layer 4 (MetalLB) and Layer 7 (Traefik) configuration |
+| **[Kubernetes Setup](./k8s.md)** | Cluster deployment and configuration |
+| **[Networking](./networking.md)** | Network design, VLANs, and routing |
+| **[Quick Start](./quick-start.md)** | Fast deployment guide |
 
-### 🏗️ Infrastructure
-- [Architecture Overview](./architecture.md) - System design and components
-- [Proxmox Setup](./proxmox/) - Virtualization platform configuration
-- [Network Configuration](./networking.md) - VLANs, firewalls, and security
-- [Storage Management](./storage/) - Persistent storage and backup strategies
+## Core Documentation
 
-### ⚙️ Automation
-- [Terraform Configuration](./terraform/) - Infrastructure as Code
-- [Ansible Playbooks](./ansible/) - Configuration management
-- [CI/CD Pipeline](./cicd.md) - Automated deployments and testing
+### Infrastructure
+- **Architecture** - 15-node K8s cluster (3 masters, 12 workers) on Proxmox
+- **Networking** - 10.1.1.0/24 with separate VLANs for management/storage
+- **Hardware** - AMD Ryzen 9 server + Raspberry Pi 5 nodes
 
-### 🎛️ Platform Services
-- [Kubernetes Platform](./kubernetes/) - Container orchestration setup
-- [Monitoring Stack](./monitoring/) - Observability and alerting
-- [Security Configuration](./security/) - Authentication, authorization, and hardening
-- [Backup and Recovery](./backup-recovery.md) - Data protection strategies
+### Platform
+- **Kubernetes** - v1.31.0 with Flannel CNI and containerd
+- **Load Balancing** - MetalLB for L4, Traefik for L7 ingress
+- **Monitoring** - Prometheus, Grafana, Loki stack
+- **Storage** - Local storage, ready for Longhorn distributed storage
 
-### 🛠️ Operations
-- [Maintenance Guide](./operations/maintenance.md) - Regular upkeep tasks
-- [Troubleshooting](./operations/troubleshooting.md) - Common issues and solutions
-- [Scaling Guide](./operations/scaling.md) - Horizontal and vertical scaling
-- [Disaster Recovery](./operations/disaster-recovery.md) - Business continuity planning
+### Operations
+- **IaC** - Terraform for VMs, Ansible for configuration
+- **Monitoring** - Full observability with custom dashboards
+- **Access** - k9s, stern, kubectl for cluster management
 
-### 📋 Reference
-- [Hardware Specifications](./reference/hardware.md) - Recommended hardware configurations
-- [Software Versions](./reference/software-versions.md) - Version compatibility matrix
-- [API Reference](./reference/api.md) - REST API documentation
-- [CLI Commands](./reference/cli.md) - Useful command reference
+## Status
 
-## 🎯 Quick Navigation
+✅ **Cluster** - 15 nodes fully operational
+✅ **Monitoring** - Grafana, Prometheus, Loki deployed
+✅ **Load Balancing** - MetalLB operational (10.1.1.100-150)
+⏳ **Ingress** - Traefik ready to deploy
 
-| Topic | Description | Link |
-|-------|-------------|------|
-| **New to Homelab?** | Start here for complete setup | [Quick Start](./quick-start.md) |
-| **Infrastructure** | Deploy VMs and networking | [Proxmox Guide](./proxmox/) |
-| **Kubernetes** | Container platform setup | [K8s Documentation](./kubernetes/) |
-| **Monitoring** | Observability stack | [Monitoring Setup](./monitoring/) |
-| **Troubleshooting** | Fix common issues | [Troubleshooting Guide](./operations/troubleshooting.md) |
+## Getting Started
 
-## 🔄 Documentation Lifecycle
+1. Review the [Architecture](./architecture.md) to understand the system design
+2. Check [Kubernetes Setup](./k8s.md) for cluster details
+3. Read [Load Balancing](./load-balancing-architecture.md) for traffic routing
+4. Use [Quick Start](./quick-start.md) for deployment procedures
 
-This documentation follows a structured approach:
+## Service Deployment
 
-1. **Planning** - Architecture decisions and design documents
-2. **Implementation** - Step-by-step guides and configurations  
-3. **Operations** - Maintenance, monitoring, and troubleshooting
-4. **Evolution** - Continuous improvement and updates
+To deploy services on this homelab:
 
-## 🤝 Contributing to Documentation
+1. **Create deployment** - Standard K8s manifests or Helm charts
+2. **Expose service** - Use LoadBalancer type for external access
+3. **Configure ingress** - Add Traefik IngressRoute for HTTP/HTTPS
+4. **Monitor** - View metrics in Grafana dashboard
 
-We welcome contributions! Please see our [Contributing Guide](../CONTRIBUTE.md) for:
-- Documentation standards
-- Review process
-- Style guidelines
-- How to submit improvements
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/amir-parvin-group/dark-knight/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/amir-parvin-group/dark-knight/discussions)
-- **Community**: [Home Operations Discord](https://discord.gg/home-operations)
-
-## 📊 Documentation Status
-
-| Section | Status | Last Updated |
-|---------|---------|--------------|
-| Quick Start | ✅ Complete | 2025-08-23 |
-| Architecture | ✅ Complete | 2025-08-23 |
-| Proxmox | ✅ Complete | 2025-08-23 |
-| Kubernetes | ✅ Complete | 2025-08-23 |
-| Monitoring | 🚧 In Progress | 2025-08-23 |
-| Security | 📋 Planned | - |
-| Operations | 🚧 In Progress | 2025-08-23 |
+See individual documentation files for detailed instructions.
 
 ---
-*Last updated: 2025-08-23 | Version: 2.0*
+*Last updated: 2025-10-26*

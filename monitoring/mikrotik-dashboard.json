@@ -1,0 +1,146 @@
+{
+  "dashboard": {
+    "title": "Mikrotik Router Monitoring",
+    "tags": [
+      "mikrotik",
+      "snmp",
+      "network"
+    ],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Interface Traffic Rate (In)",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "rate(ifHCInOctets{job=\"mikrotik-router\"}[5m]) * 8",
+            "legendFormat": "{{ifName}} - In",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "bps",
+            "label": "Bits per second"
+          },
+          {
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Interface Traffic Rate (Out)",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "rate(ifHCOutOctets{job=\"mikrotik-router\"}[5m]) * 8",
+            "legendFormat": "{{ifName}} - Out",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "bps",
+            "label": "Bits per second"
+          },
+          {
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Total Traffic (In)",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        },
+        "targets": [
+          {
+            "expr": "ifHCInOctets{job=\"mikrotik-router\"}",
+            "legendFormat": "{{ifName}} - Total In",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": "Total Bytes"
+          },
+          {
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Total Traffic (Out)",
+        "type": "graph",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        },
+        "targets": [
+          {
+            "expr": "ifHCOutOctets{job=\"mikrotik-router\"}",
+            "legendFormat": "{{ifName}} - Total Out",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "bytes",
+            "label": "Total Bytes"
+          },
+          {
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Interface Status",
+        "type": "table",
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 16
+        },
+        "targets": [
+          {
+            "expr": "ifOperStatus{job=\"mikrotik-router\"}",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ]
+      }
+    ],
+    "refresh": "30s",
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    }
+  },
+  "overwrite": true
+}

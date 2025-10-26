@@ -1,0 +1,26 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: mikrotik-router
+  namespace: monitoring
+  labels:
+    prometheus: kube-prometheus-stack-prometheus
+spec:
+  staticConfigs:
+    - targets:
+        - 10.0.0.1
+      labels:
+        job: mikrotik-router
+  metricsPath: /snmp
+  params:
+    module:
+      - if_mib
+    auth:
+      - public_v2
+  relabelings:
+    - sourceLabels: [__address__]
+      targetLabel: __param_target
+    - sourceLabels: [__param_target]
+      targetLabel: instance
+    - targetLabel: __address__
+      replacement: snmp-exporter.monitoring.svc.cluster.local:9116

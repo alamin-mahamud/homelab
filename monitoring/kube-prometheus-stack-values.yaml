@@ -1,0 +1,56 @@
+# Kube-Prometheus-Stack Configuration
+grafana:
+  enabled: true
+  adminPassword: "admin123"  # Change this!
+  service:
+    type: NodePort
+    nodePort: 30000
+  persistence:
+    enabled: true
+    size: 10Gi
+
+prometheus:
+  enabled: true
+  prometheusSpec:
+    retention: 30d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 50Gi
+    # Monitor all namespaces
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    # Additional scrape configs for Mikrotik
+    additionalScrapeConfigs:
+      - job_name: 'mikrotik-router'
+        static_configs:
+          - targets: ['10.0.0.1']
+        metrics_path: /snmp
+        params:
+          module: [if_mib]
+          auth: [public_v2]
+        relabel_configs:
+          - source_labels: [__address__]
+            target_label: __param_target
+          - source_labels: [__param_target]
+            target_label: instance
+          - target_label: __address__
+            replacement: snmp-exporter.monitoring.svc.cluster.local:9116
+
+# Enable node exporter on all nodes
+nodeExporter:
+  enabled: true
+
+# Enable kube-state-metrics
+kubeStateMetrics:
+  enabled: true
+
+# Alert Manager
+alertmanager:
+  enabled: true
+  service:
+    type: NodePort
+    nodePort: 30001

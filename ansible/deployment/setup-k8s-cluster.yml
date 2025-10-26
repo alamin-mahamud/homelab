@@ -1,0 +1,423 @@
+---
+# Ansible Playbook to Deploy K8s Cluster with kubeadm
+# This playbook sets up a production-ready K8s cluster with HA control plane
+
+- name: Common setup for all nodes
+  hosts: all
+  become: yes
+  vars:
+    k8s_version: "1.31"
+    pod_network_cidr: "10.244.0.0/16"
+    service_cidr: "10.96.0.0/12"
+    cluster_endpoint: "10.1.1.10:6443"  # HAProxy LB
+  
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - software-properties-common
+          - nfs-common
+        state: present
+
+    - name: Disable swap
+      shell: |
+        swapoff -a
+        sed -i '/ swap / s/^/#/' /etc/fstab
+
+    - name: Load kernel modules
+      modprobe:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - overlay
+        - br_netfilter
+
+    - name: Setup kernel modules to load at boot
+      copy:
+        content: |
+          overlay
+          br_netfilter
+        dest: /etc/modules-load.d/k8s.conf
+
+    - name: Setup sysctl params
+      copy:
+        content: |
+          net.bridge.bridge-nf-call-iptables  = 1
+          net.bridge.bridge-nf-call-ip6tables = 1
+          net.ipv4.ip_forward                 = 1
+        dest: /etc/sysctl.d/k8s.conf
+
+    - name: Apply sysctl params
+      command: sysctl --system
+
+    - name: Install containerd
+      block:
+        - name: Add Docker GPG key
+          apt_key:
+            url: https://download.docker.com/linux/ubuntu/gpg
+            state: present
+
+        - name: Add Docker repository
+          apt_repository:
+            repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+            state: present
+
+        - name: Install containerd
+          apt:
+            name: containerd.io
+            state: present
+
+        - name: Create containerd config directory
+          file:
+            path: /etc/containerd
+            state: directory
+
+        - name: Configure containerd
+          shell: |
+            containerd config default | tee /etc/containerd/config.toml
+            sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
+
+        - name: Restart containerd
+          systemd:
+            name: containerd
+            state: restarted
+            enabled: yes
+
+    - name: Install Kubernetes packages
+      block:
+        - name: Add Kubernetes GPG key
+          apt_key:
+            url: https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/deb/Release.key
+            state: present
+
+        - name: Add Kubernetes repository
+          apt_repository:
+            repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/deb/ /"
+            state: present
+            filename: kubernetes
+
+        - name: Install kubeadm, kubelet, and kubectl
+          apt:
+            name:
+              - kubelet
+              - kubeadm
+              - kubectl
+            state: present
+
+        - name: Hold Kubernetes packages
+          dpkg_selections:
+            name: "{{ item }}"
+            selection: hold
+          loop:
+            - kubelet
+            - kubeadm
+            - kubectl
+
+    - name: Set hostname
+      hostname:
+        name: "{{ hostname }}"
+      when: hostname is defined
+
+- name: Setup HAProxy Load Balancer
+  hosts: k8s_lb
+  become: yes
+  tasks:
+    - name: Install HAProxy
+      apt:
+        name: haproxy
+        state: present
+
+    - name: Configure HAProxy for K8s API
+      copy:
+        content: |
+          global
+              log /dev/log    local0
+              log /dev/log    local1 notice
+              chroot /var/lib/haproxy
+              stats socket /run/haproxy/admin.sock mode 660 level admin
+              stats timeout 30s
+              user haproxy
+              group haproxy
+              daemon
+
+          defaults
+              log     global
+              mode    tcp
+              option  tcplog
+              option  dontlognull
+              timeout connect 5000
+              timeout client  50000
+              timeout server  50000
+
+          frontend k8s-api
+              bind *:6443
+              mode tcp
+              option tcplog
+              default_backend k8s-api-backend
+
+          backend k8s-api-backend
+              mode tcp
+              option tcp-check
+              balance roundrobin
+              server master-01 10.1.1.11:6443 check
+              server master-02 10.1.1.12:6443 check
+              server master-03 10.1.1.13:6443 check
+
+          listen stats
+              bind *:8080
+              stats enable
+              stats uri /stats
+              stats refresh 30s
+        dest: /etc/haproxy/haproxy.cfg
+
+    - name: Restart HAProxy
+      systemd:
+        name: haproxy
+        state: restarted
+        enabled: yes
+
+- name: Initialize first master node
+  hosts: 10.1.1.11
+  become: yes
+  tasks:
+    - name: Check if cluster is already initialized
+      stat:
+        path: /etc/kubernetes/admin.conf
+      register: kubeadm_init
+
+    - name: Initialize Kubernetes cluster
+      shell: |
+        kubeadm init \
+          --control-plane-endpoint="{{ cluster_endpoint }}" \
+          --upload-certs \
+          --apiserver-advertise-address=10.1.1.11 \
+          --pod-network-cidr={{ pod_network_cidr }} \
+          --service-cidr={{ service_cidr }}
+      when: not kubeadm_init.stat.exists
+      register: kubeadm_init_output
+
+    - name: Create .kube directory
+      file:
+        path: /home/ubuntu/.kube
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    - name: Copy admin.conf to user's kube config
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/ubuntu/.kube/config
+        remote_src: yes
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+
+    - name: Install Calico network plugin
+      become_user: ubuntu
+      shell: |
+        kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.0/manifests/tigera-operator.yaml
+        kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.0/manifests/custom-resources.yaml
+      when: not kubeadm_init.stat.exists
+
+    - name: Generate join commands
+      shell: |
+        echo "# Master join command:" > /tmp/join-commands.txt
+        kubeadm token create --print-join-command --certificate-key $(kubeadm init phase upload-certs --upload-certs 2>/dev/null | tail -1) >> /tmp/join-commands.txt
+        echo "# Worker join command:" >> /tmp/join-commands.txt
+        kubeadm token create --print-join-command >> /tmp/join-commands.txt
+      register: join_commands
+
+    - name: Fetch join commands
+      fetch:
+        src: /tmp/join-commands.txt
+        dest: /tmp/join-commands.txt
+        flat: yes
+
+- name: Join other master nodes
+  hosts: k8s_masters:!10.1.1.11
+  become: yes
+  tasks:
+    - name: Check if already joined
+      stat:
+        path: /etc/kubernetes/admin.conf
+      register: joined
+
+    - name: Get master join command
+      shell: grep -A1 "Master join" /tmp/join-commands.txt | tail -1
+      delegate_to: localhost
+      register: master_join_cmd
+      when: not joined.stat.exists
+
+    - name: Join master nodes to cluster
+      shell: "{{ master_join_cmd.stdout }} --control-plane"
+      when: not joined.stat.exists
+
+    - name: Create .kube directory
+      file:
+        path: /home/ubuntu/.kube
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    - name: Copy admin.conf to user's kube config
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/ubuntu/.kube/config
+        remote_src: yes
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+
+- name: Join worker nodes
+  hosts: k8s_workers
+  become: yes
+  tasks:
+    - name: Check if already joined
+      stat:
+        path: /etc/kubernetes/kubelet.conf
+      register: joined
+
+    - name: Get worker join command
+      shell: grep -A1 "Worker join" /tmp/join-commands.txt | tail -1
+      delegate_to: localhost
+      register: worker_join_cmd
+      when: not joined.stat.exists
+
+    - name: Join worker nodes to cluster
+      shell: "{{ worker_join_cmd.stdout }}"
+      when: not joined.stat.exists
+
+- name: Setup storage node
+  hosts: k8s_storage
+  become: yes
+  tasks:
+    - name: Install NFS server
+      apt:
+        name:
+          - nfs-kernel-server
+          - nfs-common
+        state: present
+
+    - name: Create NFS export directories
+      file:
+        path: "/srv/nfs/{{ item }}"
+        state: directory
+        owner: nobody
+        group: nogroup
+        mode: '0777'
+      loop:
+        - k8s-pvs
+        - backups
+        - media
+        - configs
+
+    - name: Configure NFS exports
+      copy:
+        content: |
+          /srv/nfs/k8s-pvs  10.1.1.0/24(rw,sync,no_subtree_check,no_root_squash)
+          /srv/nfs/backups  10.1.1.0/24(rw,sync,no_subtree_check,no_root_squash)
+          /srv/nfs/media    10.1.1.0/24(rw,sync,no_subtree_check,no_root_squash)
+          /srv/nfs/configs  10.1.1.0/24(rw,sync,no_subtree_check,no_root_squash)
+        dest: /etc/exports
+
+    - name: Export NFS shares
+      command: exportfs -ra
+
+    - name: Restart NFS server
+      systemd:
+        name: nfs-kernel-server
+        state: restarted
+        enabled: yes
+
+- name: Configure cluster post-setup
+  hosts: 10.1.1.11
+  become: yes
+  become_user: ubuntu
+  tasks:
+    - name: Label worker nodes
+      shell: |
+        kubectl label node {{ item }} node-role.kubernetes.io/worker=worker --overwrite
+      loop:
+        - k8s-worker-01
+        - k8s-worker-02
+        - k8s-worker-03
+        - k8s-worker-04
+        - k8s-worker-05
+        - k8s-worker-06
+        - k8s-worker-07
+      ignore_errors: yes
+
+    - name: Create monitoring namespace
+      kubernetes.core.k8s:
+        name: monitoring
+        api_version: v1
+        kind: Namespace
+        state: present
+
+    - name: Create homelab namespace
+      kubernetes.core.k8s:
+        name: homelab
+        api_version: v1
+        kind: Namespace
+        state: present
+
+    - name: Install MetalLB
+      shell: |
+        kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+        
+    - name: Wait for MetalLB to be ready
+      pause:
+        seconds: 30
+
+    - name: Configure MetalLB
+      copy:
+        content: |
+          apiVersion: metallb.io/v1beta1
+          kind: IPAddressPool
+          metadata:
+            name: homelab-pool
+            namespace: metallb-system
+          spec:
+            addresses:
+            - 10.2.0.100-10.2.0.150
+          ---
+          apiVersion: metallb.io/v1beta1
+          kind: L2Advertisement
+          metadata:
+            name: homelab-l2
+            namespace: metallb-system
+          spec:
+            ipAddressPools:
+            - homelab-pool
+        dest: /tmp/metallb-config.yaml
+
+    - name: Apply MetalLB configuration
+      shell: kubectl apply -f /tmp/metallb-config.yaml
+
+    - name: Get cluster info
+      shell: kubectl cluster-info
+      register: cluster_info
+
+    - name: Display cluster info
+      debug:
+        msg: "{{ cluster_info.stdout_lines }}"
+
+    - name: Get node status
+      shell: kubectl get nodes -o wide
+      register: nodes_status
+
+    - name: Display nodes status
+      debug:
+        msg: "{{ nodes_status.stdout_lines }}"
