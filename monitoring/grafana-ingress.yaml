@@ -1,0 +1,17 @@
+---
+# Grafana IngressRoute for Traefik
+# This exposes Grafana at http://grafana.homelab.local
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`grafana.homelab.local`)
+      kind: Rule
+      services:
+        - name: kube-prometheus-stack-grafana
+          port: 80

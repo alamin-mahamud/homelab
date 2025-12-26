@@ -1,0 +1,16 @@
+---
+# Immich IngressRoute
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: immich
+  namespace: media
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`immich.homelab.local`)
+      kind: Rule
+      services:
+        - name: immich-server
+          port: 2283

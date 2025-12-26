@@ -1,0 +1,67 @@
+---
+# Whoami - Simple test application for ingress testing
+# Shows HTTP request headers and connection info
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whoami
+  namespace: infrastructure
+  labels:
+    app: whoami
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: whoami
+  template:
+    metadata:
+      labels:
+        app: whoami
+    spec:
+      containers:
+        - name: whoami
+          image: traefik/whoami:latest
+          ports:
+            - containerPort: 80
+              name: http
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "50m"
+            limits:
+              memory: "64Mi"
+              cpu: "100m"
+
+---
+# Whoami Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: whoami
+  namespace: infrastructure
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app: whoami
+
+---
+# Whoami IngressRoute
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: whoami
+  namespace: infrastructure
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`whoami.homelab.local`)
+      kind: Rule
+      services:
+        - name: whoami
+          port: 80

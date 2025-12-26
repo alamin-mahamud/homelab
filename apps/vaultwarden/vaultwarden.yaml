@@ -1,0 +1,97 @@
+---
+# Vaultwarden Storage
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vaultwarden-data-pvc
+  namespace: productivity
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+# Vaultwarden Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vaultwarden
+  namespace: productivity
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vaultwarden
+  template:
+    metadata:
+      labels:
+        app: vaultwarden
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      containers:
+        - name: vaultwarden
+          image: vaultwarden/server:latest
+          ports:
+            - containerPort: 80
+              name: http
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          env:
+            - name: SIGNUPS_ALLOWED
+              value: "true"
+            - name: INVITATIONS_ALLOWED
+              value: "true"
+            - name: WEBSOCKET_ENABLED
+              value: "true"
+            - name: SHOW_PASSWORD_HINT
+              value: "false"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: vaultwarden-data-pvc
+
+---
+# Vaultwarden Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: vaultwarden
+  namespace: productivity
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app: vaultwarden
+
+---
+# Vaultwarden IngressRoute
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: vaultwarden
+  namespace: productivity
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`vaultwarden.homelab.local`)
+      kind: Rule
+      services:
+        - name: vaultwarden
+          port: 80

@@ -1,0 +1,88 @@
+---
+# Uptime Kuma Storage
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: uptime-kuma-data-pvc
+  namespace: infrastructure
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+# Uptime Kuma Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uptime-kuma
+  namespace: infrastructure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: uptime-kuma
+  template:
+    metadata:
+      labels:
+        app: uptime-kuma
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: arm64
+      containers:
+        - name: uptime-kuma
+          image: louislam/uptime-kuma:1
+          ports:
+            - containerPort: 3001
+              name: http
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: uptime-kuma-data-pvc
+
+---
+# Uptime Kuma Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: uptime-kuma
+  namespace: infrastructure
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3001
+      targetPort: 3001
+      protocol: TCP
+      name: http
+  selector:
+    app: uptime-kuma
+
+---
+# Uptime Kuma IngressRoute
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: uptime-kuma
+  namespace: infrastructure
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`uptime.homelab.local`)
+      kind: Rule
+      services:
+        - name: uptime-kuma
+          port: 3001

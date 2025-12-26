@@ -1,0 +1,17 @@
+---
+# Traefik Dashboard IngressRoute
+# Access at http://traefik.homelab.local
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard
+  namespace: traefik
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`traefik.homelab.local`)
+      kind: Rule
+      services:
+        - kind: TraefikService
+          name: api@internal

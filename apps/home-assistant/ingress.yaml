@@ -1,0 +1,16 @@
+---
+# Home Assistant IngressRoute
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: home-assistant
+  namespace: home-automation
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`homeassistant.homelab.local`)
+      kind: Rule
+      services:
+        - name: home-assistant
+          port: 8123

@@ -1,0 +1,33 @@
+---
+# Prometheus IngressRoute for Traefik
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: prometheus
+  namespace: monitoring
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`prometheus.homelab.local`)
+      kind: Rule
+      services:
+        - name: kube-prometheus-stack-prometheus
+          port: 9090
+
+---
+# AlertManager IngressRoute
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: alertmanager
+  namespace: monitoring
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`alertmanager.homelab.local`)
+      kind: Rule
+      services:
+        - name: kube-prometheus-stack-alertmanager
+          port: 9093

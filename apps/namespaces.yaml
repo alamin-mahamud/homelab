@@ -1,0 +1,36 @@
+---
+# Namespaces for homelab applications
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: media
+  labels:
+    name: media
+    app-category: media
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: home-automation
+  labels:
+    name: home-automation
+    app-category: home-automation
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: productivity
+  labels:
+    name: productivity
+    app-category: productivity
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: infrastructure
+  labels:
+    name: infrastructure
+    app-category: infrastructure

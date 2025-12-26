@@ -1,0 +1,165 @@
+---
+# Immich Upload/Library Storage
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: immich-library-pvc
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 100Gi
+
+---
+# Immich ML Model Cache
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: immich-model-cache-pvc
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+# Immich Configuration Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: immich-config
+  namespace: media
+type: Opaque
+stringData:
+  DB_HOSTNAME: immich-postgres
+  DB_USERNAME: immich
+  DB_PASSWORD: immich_secure_password_change_me
+  DB_DATABASE_NAME: immich
+  REDIS_HOSTNAME: immich-redis
+  UPLOAD_LOCATION: /usr/src/app/upload
+
+---
+# Immich Server
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: immich-server
+  namespace: media
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: immich-server
+  template:
+    metadata:
+      labels:
+        app: immich-server
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      containers:
+        - name: immich-server
+          image: ghcr.io/immich-app/immich-server:release
+          envFrom:
+            - secretRef:
+                name: immich-config
+          ports:
+            - containerPort: 2283
+              name: http
+          volumeMounts:
+            - name: library
+              mountPath: /usr/src/app/upload
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "4Gi"
+              cpu: "2000m"
+      volumes:
+        - name: library
+          persistentVolumeClaim:
+            claimName: immich-library-pvc
+
+---
+# Immich Machine Learning
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: immich-machine-learning
+  namespace: media
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: immich-machine-learning
+  template:
+    metadata:
+      labels:
+        app: immich-machine-learning
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      containers:
+        - name: immich-machine-learning
+          image: ghcr.io/immich-app/immich-machine-learning:release
+          envFrom:
+            - secretRef:
+                name: immich-config
+          ports:
+            - containerPort: 3003
+              name: http
+          volumeMounts:
+            - name: model-cache
+              mountPath: /cache
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1000m"
+            limits:
+              memory: "8Gi"
+              cpu: "4000m"
+      volumes:
+        - name: model-cache
+          persistentVolumeClaim:
+            claimName: immich-model-cache-pvc
+
+---
+# Immich Server Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: immich-server
+  namespace: media
+spec:
+  type: ClusterIP
+  ports:
+    - port: 2283
+      targetPort: 2283
+      protocol: TCP
+      name: http
+  selector:
+    app: immich-server
+
+---
+# Immich Machine Learning Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: immich-machine-learning
+  namespace: media
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3003
+      targetPort: 3003
+      protocol: TCP
+      name: http
+  selector:
+    app: immich-machine-learning
