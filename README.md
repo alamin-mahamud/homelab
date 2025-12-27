@@ -13,23 +13,14 @@ Production-ready Kubernetes cluster for self-hosting services.
 
 ```
 homelab/
-├── infrastructure/     # Base infrastructure provisioning
+├── infra/              # Provisioning & configuration
 │   ├── terraform/      # VM creation on Proxmox
-│   └── proxmox/        # Hypervisor templates
-├── cluster/            # Kubernetes cluster bootstrap
-│   └── ansible/        # Automation, roles, playbooks
-├── platform/           # Platform services
-│   ├── metallb/        # L4 load balancer
-│   ├── traefik/        # L7 ingress controller
-│   └── storage/        # Storage classes
-├── apps/               # Application deployments
-│   ├── home-assistant/
-│   ├── immich/
-│   ├── vaultwarden/
-│   └── ...
-├── observability/      # Monitoring & logging
-│   ├── dashboards/
-│   └── helm/
+│   ├── proxmox/        # Hypervisor templates
+│   └── ansible/        # Cluster bootstrap
+├── k8s/                # Kubernetes manifests
+│   ├── system/         # Core services (metallb, traefik, storage)
+│   └── apps/           # Applications
+├── monitoring/         # Observability stack
 ├── scripts/            # Automation scripts
 └── docs/               # Documentation
 ```
@@ -37,20 +28,17 @@ homelab/
 ## Quick Start
 
 ```bash
-# 1. Provision infrastructure
-cd infrastructure/terraform
-terraform init && terraform apply
+# 1. Provision VMs
+cd infra/terraform && terraform apply
 
 # 2. Bootstrap cluster
-cd ../../cluster/ansible
-ansible-playbook -i inventory.ini k8s-setup.yml
+cd ../ansible && ansible-playbook -i inventory.ini k8s-setup.yml
 
-# 3. Deploy platform services
-kubectl apply -f platform/metallb/
-kubectl apply -f platform/traefik/
+# 3. Deploy system services
+kubectl apply -f k8s/system/
 
-# 4. Deploy applications
-kubectl apply -f apps/
+# 4. Deploy apps
+kubectl apply -f k8s/apps/
 ```
 
 ## Network
@@ -58,25 +46,19 @@ kubectl apply -f apps/
 ```
 Internet → Mikrotik (10.0.0.1)
     ↓
-HAProxy LB (10.1.1.50:6443)
+HAProxy (10.1.1.50:6443)
     ↓
 K8s Masters (10.1.1.11-13)
     ↓
-├─ AMD64 Workers (10.1.1.31-40)
-└─ ARM64 Workers (10.1.1.60-61)
+Workers (10.1.1.31-40, 10.1.1.60-61)
 
-MetalLB Pool: 10.1.1.100-150
-Pod Network: 10.244.0.0/16
+MetalLB: 10.1.1.100-150
+Pods: 10.244.0.0/16
 ```
 
-## Documentation
+## Docs
 
 - [Architecture](docs/architecture.md)
-- [Kubernetes Setup](docs/k8s.md)
-- [Traefik Routing](docs/traefik-routing.md)
-- [Deployed Services](docs/deployed-services.md)
-- [Quick Start](docs/quick-start.md)
-
-## License
-
-MIT
+- [Kubernetes](docs/k8s.md)
+- [Traefik](docs/traefik-routing.md)
+- [Services](docs/deployed-services.md)
