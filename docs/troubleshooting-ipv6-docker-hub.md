@@ -44,38 +44,38 @@ curl -I https://ghcr.io/v2/
 
 ## Solution
 
-Configure system-wide IPv4 preference via `/etc/gai.conf` on all nodes.
+Block IPv6 traffic to Docker Hub at the router level, forcing clients to fall back to IPv4.
 
-### Deploy IPv4 Preference DaemonSet
-```bash
-kubectl apply -f k8s/system/ipv4-preference.yaml
+### MikroTik Router Configuration
+```routeros
+/ipv6 firewall filter add \
+  chain=forward \
+  action=reject \
+  reject-with=icmp-address-unreachable \
+  dst-address=2600:1f18::/32 \
+  protocol=tcp \
+  dst-port=443 \
+  comment="Block Docker Hub IPv6 - forces IPv4 fallback" \
+  place-before=0
 ```
 
-This DaemonSet:
-1. Runs on all nodes (including control plane)
-2. Writes `precedence ::ffff:0:0/96  100` to `/etc/gai.conf`
-3. Makes the system prefer IPv4 over IPv6 for DNS resolution
+This rule:
+1. Blocks IPv6 connections to Docker Hub's address range (2600:1f18::/32)
+2. Rejects with ICMP unreachable, causing immediate fallback to IPv4
+3. Applies to all devices on the network automatically
 
 ### Restart affected pods
 ```bash
 # Delete pods with ImagePullBackOff to trigger retry
-kubectl get pods -A --no-headers | grep -e ImagePull -e ErrImage | \
-  awk '{print "-n", $1, $2}' | xargs -r kubectl delete pod
-```
-
-### For persistent issues, restart containerd on affected nodes
-The gai.conf change only affects new processes. If containerd has cached DNS results:
-
-```bash
-# Via privileged pod
-kubectl run restart-containerd --rm -it --restart=Never \
-  --overrides='{"spec":{"nodeName":"NODE_NAME","hostPID":true,...}}' \
-  -- nsenter --target 1 --mount --pid -- systemctl restart containerd
+kubectl get pods -A --no-headers | awk '/ImagePull|ErrImage/ {print "-n", $1, $2}' | xargs kubectl delete pod
 ```
 
 ## Prevention
 
-The `k8s/system/ipv4-preference.yaml` DaemonSet should be deployed as part of cluster setup to prevent this issue.
+The MikroTik firewall rule should be configured as part of network setup to prevent this issue for all cluster nodes.
 
-## Related Files
-- `k8s/system/ipv4-preference.yaml` - DaemonSet to set IPv4 preference
+## Notes
+
+- Router-level fix is preferred over per-node fixes (gai.conf, sysctl) as it applies automatically to all nodes
+- The IPv6 block is specific to Docker Hub and doesn't affect other IPv6 traffic
+- Other registries (ghcr.io, quay.io) work fine with IPv6
