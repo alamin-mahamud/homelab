@@ -18,10 +18,10 @@ homelab/
 │   ├── proxmox/        # Hypervisor templates
 │   └── ansible/        # Cluster bootstrap
 ├── k8s/                # Kubernetes manifests
-│   ├── system/         # Core services (metallb, traefik, storage)
+│   ├── system/         # Core (metallb, traefik, storage)
+│   ├── monitoring/     # Prometheus, Grafana, Loki
 │   └── apps/           # Applications
-├── monitoring/         # Observability stack
-├── scripts/            # Automation scripts
+├── scripts/            # Automation
 └── docs/               # Documentation
 ```
 
@@ -34,10 +34,9 @@ cd infra/terraform && terraform apply
 # 2. Bootstrap cluster
 cd ../ansible && ansible-playbook -i inventory.ini k8s-setup.yml
 
-# 3. Deploy system services
+# 3. Deploy
 kubectl apply -f k8s/system/
-
-# 4. Deploy apps
+kubectl apply -f k8s/monitoring/
 kubectl apply -f k8s/apps/
 ```
 
