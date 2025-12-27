@@ -31,12 +31,12 @@ spec:
         app: home-assistant
     spec:
       nodeSelector:
-        kubernetes.io/arch: arm64
+        kubernetes.io/arch: amd64
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: home-assistant
-          image: ghcr.io/home-assistant/home-assistant:stable
+          image: lscr.io/linuxserver/homeassistant:latest
           ports:
             - containerPort: 8123
               name: http
@@ -54,18 +54,22 @@ spec:
             limits:
               memory: "2Gi"
               cpu: "1000m"
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8123
+            failureThreshold: 30
+            periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
               port: 8123
-            initialDelaySeconds: 60
             periodSeconds: 30
             timeoutSeconds: 10
           readinessProbe:
             httpGet:
               path: /
               port: 8123
-            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
       volumes:
