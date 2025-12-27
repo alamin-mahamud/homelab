@@ -1,0 +1,9 @@
+# Longhorn Distributed Storage
+# Install: helm install longhorn longhorn/longhorn -n longhorn-system --create-namespace -f values.yaml
+
+defaultSettings:
+  defaultDataPath: /var/lib/longhorn
+  defaultReplicaCount: 2
+
+persistence:
+  defaultClassReplicaCount: 2
